@@ -62,14 +62,28 @@
 			          <h3 id="rezgo-voucher-company">Booking Voucher for <?=$company->company_name?>	</h3>
 			          <h1 id="rezgo-voucher-tour"><?=$booking->tour_name?></h1>
 			          <h3 id="rezgo-voucher-option"><?=$booking->option_name?><span class="small">&nbsp;&nbsp;(SKU: <?=$item->uid?>)</span></h3>
+                <? if ((string) $booking->date != 'open') { ?>
 			          <h4 id="rezgo-voucher-booking-date"><label>Booked for Date:</label>&nbsp;<?=date((string) $company->date_format, (int) $booking->date)?></h4>
+                <? } ?>
 			          <? if ($booking->time != '') { ?>
-                <h4 id="rezgo-voucher-booking-date"><label>Time:</label>&nbsp;<?=$booking->time?></h4>
+                <h4 id="rezgo-voucher-booking-time"><label>Time:</label>&nbsp;<?=$booking->time?></h4>
                 <? } ?>
 			          <h4 id="rezgo-voucher-created-date"><label>Issued Date:</label>&nbsp;<?=date((string) $company->date_format, (int) $booking->date_purchased_local)?> (local time)</h4>
+                <? if (isset($booking->expiry)) { ?>
+			          <h4 id="rezgo-voucher-expiry"><label>Expires:</label>&nbsp;
+									<? 
+                  if ((int) $booking->expiry !== 0) {
+                    echo date((string) $company->date_format, (int) $booking->expiry);
+                  } else {
+                    echo 'Never';
+                  }
+                  ?>
+                </h4>
+                <? } ?>
+                
 			          <h4 id="rezgo-voucher-transnum"><label>Booking Reference:</label>&nbsp;<?=$booking->trans_num?></h4>
 			          <h4 id="rezgo-voucher-contact"><label>Booking Contact:</label>&nbsp;<?=$booking->first_name?> <?=$booking->last_name?></h4>
-			          <h4 id="rezgo-voucher-paxcount"><label>Booking Pax:</label>&nbsp;      
+			          <h4 id="rezgo-voucher-paxcount"><label>Booking Pax:</label>&nbsp;
 								<? foreach( $site->getBookingCounts() as $count ) { ?>
 			          <? if($n) { echo ', '; } else { $n = 1; } ?><?=$count->num?> x <?=$count->label?>
 			          <? } ?>
@@ -78,6 +92,7 @@
 			            <h4 id="rezgo-voucher-promocode"><label class="rezgo-promo-label"><span>Promotional Code:</span></label>&nbsp;<?=$booking->trigger_code?></h4>
 			          <? } ?>
 			          <p id="rezgo-voucher-paxlist" class="rezgo-voucher-para">
+                
 								<? foreach( $site->getBookingPassengers() as $passenger ) { ?>
 			            <label><?=$passenger->label?> <?=$passenger->num?>:</label> <?=$passenger->first_name?> <?=$passenger->last_name?><br />
 			          <? } ?>

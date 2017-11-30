@@ -1,24 +1,23 @@
 <?php
 
 	/*
-		This is the Rezgo parser class, it handles processing for the Rezgo XML.
+		This is the Rezgo parser class, it handles processing for the Rezgo API.
 		
 		VERSION:
-				2.5.0
+				3.0.0
 		
 		- Documentation and latest version
-				http://support.rezgo.com/customer/portal/articles/1153719-open-source-php-parser
+				https://www.rezgo.com/rezgo-open-source-booking-engine/
 		
 		- Finding your Rezgo CID and API KEY
-				http://support.rezgo.com/customer/portal/articles/831818-xml-api-key
-		
-		- Discussion and Feedback
-				http://getsatisfaction.com/rezgo/products/rezgo_rezgo_open_source_php_parser
+				https://www.rezgo.com/support-article/xml-api-start
 		
 		AUTHOR:
 				Kevin Campbell
+				John McDonald
+				Charles Olivier
 		
-		Copyright (c) 2012-2013, Rezgo (A Division of Sentias Software Corp.)
+		Copyright (c) 2012-2017, Rezgo (A Division of Sentias Software Corp.)
 		All rights reserved.
 		
 		Redistribution and use in source form, with or without modification,
@@ -30,7 +29,7 @@
 		its contributors may be used to endorse or promote products derived
 		from this software without specific prior written permission.
 		* Source code is provided for the exclusive use of Rezgo members who
-		wish to connect to their Rezgo XMP API.  Modifications to source code
+		wish to connect to their Rezgo API. Modifications to source code
 		may not be used to connect to competing software without specific
 		prior written permission.
 		
@@ -49,7 +48,7 @@
 
 	class RezgoSite {
 	
-		var $version = '2.5.0';
+		var $version = '3.0.0';
 		
 		var $requestID;
 		
@@ -90,7 +89,7 @@
 		var $calendar_months = array();
 		var $calendar_years = array();
 		
-		// xml result caches improve performance by not hitting the gateway multiple times
+		// api result caches improve performance by not hitting the gateway multiple times
 		// searches that have differing args sort them into arrays with the index variables above
 		var $company_response;
 		var $page_response = array();
@@ -102,6 +101,8 @@
 		var $cart_total;
 		var $commit_response;
 		var $contact_response;
+		var $ticket_response;
+		var $waiver_response;
 		
 		var $tour_forms;
 		
@@ -110,6 +111,7 @@
 		var $cart = array();
 		
 		var $cart_ids;
+		var $gift_card;
 		
 		// debug and error stacks
 		var $error_stack;
@@ -121,7 +123,7 @@
 		// ------------------------------------------------------------------------------
 		function __construct($secure=null, $newID=null) {
 			if(!$this->config('REZGO_SKIP_BUFFER')) ob_start();
-		
+			
 			// check the config file to make sure it's loaded
 			if(!$this->config('REZGO_CID')) $this->error('REZGO_CID definition missing, check config file', 1);
 			
@@ -342,7 +344,7 @@
 				if(($i == 'commit' || $i == 'commitOrder') && $this->config('REZGO_SWITCH_COMMIT')) { if($this->config('REZGO_STOP_COMMIT')) { echo $_SESSION['error_catch'] = 'STOP::'.$message.'<br><br>'; } }
 				else { echo '<script>if(window.console != undefined) { console.info("'.addslashes($message).'"); }</script>'; }
 			}
-			if($this->config('REZGO_DISPLAY_XML'))  {
+			if($this->config('REZGO_DISPLAY_XML'))	{
 				if(($i == 'commit' || $i == 'commitOrder') && $this->config('REZGO_SWITCH_COMMIT')) { die('STOP::'.$message); }
 				else { echo '<textarea rows="2" cols="25">'.$message.'</textarea>'; }
 			}
@@ -361,18 +363,18 @@
 		function randstring($len = 10) {
 			$len = $len / 2;
 			
-	    $timestring = microtime();
-	    $secondsSinceEpoch=(integer) substr($timestring, strrpos($timestring, " "), 100);
-	    $microseconds=(double) $timestring;
-	    $seed = mt_rand(0,1000000000) + 10000000 * $microseconds + $secondsSinceEpoch;
-	    mt_srand($seed);
-	    $randstring = "";
-	    for($i=0; $i < $len; $i++) {
-	      $randstring .= mt_rand(0, 9);
-	      $randstring .= chr(ord('A') + mt_rand(0, 24));
-	    }
-	   	return($randstring);
-	  }
+			$timestring = microtime();
+			$secondsSinceEpoch=(integer) substr($timestring, strrpos($timestring, " "), 100);
+			$microseconds=(double) $timestring;
+			$seed = mt_rand(0,1000000000) + 10000000 * $microseconds + $secondsSinceEpoch;
+			mt_srand($seed);
+			$randstring = "";
+			for($i=0; $i < $len; $i++) {
+				$randstring .= mt_rand(0, 9);
+				$randstring .= chr(ord('A') + mt_rand(0, 24));
+			}
+		 	return($randstring);
+		}
 		
 		function secureURL() {
 			if($this->config('REZGO_FORWARD_SECURE')) {
@@ -469,6 +471,7 @@
 			$str = str_replace(" ", "-", $str);
 			$str = preg_replace('/[^A-Za-z0-9\-]/','', $str);
 			$str = preg_replace('/[\-]+/','-', $str);
+			if(!$str) $str = urlencode($string);
 			return strtolower($str);	
 		}
 		
@@ -501,7 +504,6 @@
 		
 		function setSecure($set) {
 			$this->setSecureXML($set);
-			
 			if($set) { 
 				if(!$this->checkSecure()) {
 					if($this->config('REZGO_FORWARD_SECURE')) {
@@ -510,7 +512,7 @@
 					} else {
 						$request = $_SERVER['REQUEST_URI'];
 					}
-					
+				
 					$this->sendTo($this->secure.$this->secureURL().$request); 
 				} 
 			} else { 
@@ -523,7 +525,7 @@
 		
 		// ------------------------------------------------------------------------------
 		// fetch a requested template from the templates directory and load it into a
-		// variable for display.  If fullpath is set, fetch it from that location instead.
+		// variable for display.	If fullpath is set, fetch it from that location instead.
 		// ------------------------------------------------------------------------------
 		function getTemplate($req, $fullpath=false) {
 			reset($GLOBALS);
@@ -542,15 +544,15 @@
 			
 			$filename = ($fullpath) ? $req : $path.$req.$ext;
 			
-			if (is_file($filename)) {
-        ob_start();
-        include $filename;
-        $contents = ob_get_contents();
-        ob_end_clean();
-    	} else {
-    		$this->error('"'.$req.'" file not found'.(($fullpath) ? '' : ' in "'.$path.'"'));
-    	}
-    	return $contents;
+			if(is_file($filename)) {
+				ob_start();
+				include $filename;
+				$contents = ob_get_contents();
+				ob_end_clean();
+			} else {
+				$this->error('"'.$req.'" file not found'.(($fullpath) ? '' : ' in "'.$path.'"'));
+			}
+			return $contents;
 		}
 		
 		// ------------------------------------------------------------------------------
@@ -605,7 +607,6 @@
 			$var = explode("|", $var);
 			return base64_decode($var[0]);
 		}
-		
 		// ------------------------------------------------------------------------------
 		// Make an API request to Rezgo. $i supports all arguments that the API supports
 		// for pre-generated queries, or a full query can be passed directly
@@ -628,7 +629,7 @@
 			// attempt to filter out any junk data
 			$file = strstr($file, '<response');
 			
-			$this->get = utf8_encode($file);
+			$this->get = $file;
 			
 			if($this->config('REZGO_DISPLAY_RESPONSES')) {
 				echo '<textarea>'.$this->get.'</textarea>';
@@ -640,7 +641,7 @@
 				
 				foreach(libxml_get_errors() as $error) {
 					$error_set .= '<br>ERROR: '.$error->message;
-			  }
+				}
 				$this->error('FATAL ERROR WITH XML PARSER ('.$i.') '.$error_set);
 				
 				// there has been a fatal error with the API, report the error to the gateway
@@ -662,8 +663,13 @@
 					$arg = ($this->company_index) ? '&q='.$this->company_index : '';
 					$query = $this->secure.$this->xml_path.'&i=company'.$arg;
 					
-					if($arguments == 'voucher') $query .= '&a=voucher';
-					elseif($this->config('REZGO_MOBILE_XML')) $query .= '&a=mobile';
+					if($arguments == 'voucher') { 
+						$query .= '&a=voucher';
+					} elseif($arguments == 'ticket') {
+						$query .= '&a=ticket';
+					} elseif($this->config('REZGO_MOBILE_XML')) {
+						$query .= '&a=mobile';
+					}
 					
 					$xml = $this->fetchXML($query);
 					
@@ -802,6 +808,31 @@
 					}
 				}
 			}
+			// !i=add gift card
+			if($i == 'addGiftCard') {
+				$this->xml_path = REZGO_XML.'/xml?transcode='.REZGO_CID.'&key='.REZGO_API_KEY.'&req='.$this->requestID.'&g='.$this->origin;
+
+				$query = 'https://'.$this->xml_path;
+
+				$post = $this->api_post_string.urlencode('<instruction>add_card</instruction>'.$arguments.'</request>');
+
+				$xml = $this->fetchXML($query, $post);
+				
+				if($xml) {
+					$this->commit_response = new stdClass();
+
+					foreach ($xml as $k => $v) {
+						$this->commit_response->$k = trim((string)$v);	
+					}
+				}
+			}
+			// !i=search gift card
+			if($i == 'searchGiftCard') {
+				$this->xml_path = REZGO_XML.'/xml?transcode='.REZGO_CID.'&i=cards&q='.$arguments;
+				$query = 'https://'.$this->xml_path;
+				$res = $this->fetchXML($query);
+				$this->gift_card = $res;
+			}
 			// !i=contact
 			if($i == 'contact') {
 				$query = 'https://'.$this->xml_path.'&i=contact&'.$arguments;
@@ -814,6 +845,32 @@
 					}
 				}
 			}
+
+			// !i=tickets
+			if($i == 'tickets') {
+				if(!$this->ticket_response[$arguments]) {
+					$query = $this->secure.$this->xml_path.'&i=tickets&q='.$arguments;
+					
+					$xml = $this->fetchXML($query);
+					
+					if($xml) {
+						$this->ticket_response[$arguments] = $xml;
+					}	
+				}			
+			}	
+
+			// !i=waiver
+			if($i == 'waiver') {
+				if(!$this->waiver_response[$arguments]) {
+					$query = $this->secure.$this->xml_path.'&i=waiver&q='.$arguments;
+					
+					$xml = $this->fetchXML($query);
+					
+					if($xml) {
+						$this->waiver_response[$arguments] = $xml;
+					}	
+				}			
+			}		
 			
 			if(REZGO_TRACE_XML) {
 				if(!$query && REZGO_INCLUDE_CACHE_XML) $query = 'called cached response';
@@ -845,7 +902,7 @@
 		}
 		
 		function setPageTitle($str) {
-			$this->pageTitle = $str;
+			$this->pageTitle = str_replace('_', ' ', $str);
 		}
 		
 		function setMetaTags($str) {
@@ -884,6 +941,27 @@
 		function getVoucherFooter() {
 			$this->XMLRequest(company, 'voucher');
 			return $this->company_response[0]->footer;
+		}
+		
+		function getTicketHeader() {
+			$this->XMLRequest(company, 'ticket');
+			$header = $this->company_response[0]->header;
+			return $this->tag_parse($header);
+		}
+		
+		function getTicketFooter() {
+			$this->XMLRequest(company, 'ticket');
+			return $this->company_response[0]->footer;
+		}
+
+		function getTicketContent($trans_num) {
+			$this->XMLRequest(tickets, $trans_num);
+			return $this->ticket_response[$trans_num];
+		}
+
+		function getWaiverContent($args=null) {
+			$this->XMLRequest(waiver, $args);
+			return $this->waiver_response[$args]->waiver;
 		}
 		
 		function getStyles() {
@@ -1009,7 +1087,7 @@
 		function getCalendar($item_id, $date=null) {
 			if(!$date) { // no date? set a default date (today)
 				$date = $default_date = strtotime(date("Y-m-15"));
-				$available = ',available'; // get first available date from month XML
+				$available = ',available'; // get first available date from month API
 			} else {
 				$date = date("Y-m-15", strtotime($date));
 				$date = strtotime($date);
@@ -1028,8 +1106,8 @@
 				}
 			}
 			
-			// update the date with the one provided from the XML response
-			// this is done in case we hopped ahead with the XML search (a=available)
+			// update the date with the one provided from the API response
+			// this is done in case we hopped ahead with the API search (a=available)
 			$date = $xml->year.'-'.$xml->month.'-15';
 			
 			$year = date("Y", strtotime($date));
@@ -1231,7 +1309,7 @@
 			if(!$obj) $obj = $this->getItem();
 			
 			// check the object, create a list of com ids
-			// search the XML with those ids and the date search
+			// search the API with those ids and the date search
 			// create a list of dates and relevant options to return
 		
 			$loop = (string) $obj->index;
@@ -1240,7 +1318,7 @@
 			$d[] = ($end) ? date("Y-M-d", strtotime($end)) : date("Y-M-d", strtotime($this->requestStr(end_date)));
 			if($d) { $d = implode(',', $d); } else { return false; }
 			
-			if(!$this->tour_availability_response[$loop])  {
+			if(!$this->tour_availability_response[$loop])	{
 				if($this->search_response[$loop]) {
 					foreach((array)$this->search_response[$loop] as $v) {
 						$uids[] = (string)$v->com;
@@ -1281,7 +1359,7 @@
 								$res[(string)$i->com][strtotime((string)$i->date->attributes()->value)]->date = strtotime((string)$i->date->attributes()->value);
 							}
 							
-							// sort by date so the earlier dates always appear first, the xml will return them in that order
+							// sort by date so the earlier dates always appear first, the api will return them in that order
 							// but if the first item found has a later date than a subsequent item, the dates will be out of order
 							ksort($res[(string)$i->com]);
 						}
@@ -1355,8 +1433,12 @@
 			}
 			
 			// if the total required count is the same as the total price points, or if no prices are required
-			// we want to set the all_required flag so that the parser won't display individual required marks
-			if($all_required == $valid_count || $all_required == 0) $this->all_required = 1;
+			// we want to set the all_required flag so that the parser won't display individual required marks			
+			if($all_required == $valid_count || $all_required == 0) {
+				$this->all_required = 1;
+			} else {
+				$this->all_required = 0;
+			}			
 			
 			return (array) $ret;
 		}
@@ -1761,7 +1843,7 @@
 		function sendBooking($var=null, $arg=null) {
 			$r = ($var) ? $var : $_REQUEST;
 			
-			if($arg) $res[] = $arg; // extra XML options
+			if($arg) $res[] = $arg; // extra API options
 			
 			($r['date']) ? $res[] = 'date='.urlencode($r['date']) : 0;
 			($r['book']) ? $res[] = 'book='.urlencode($r['book']) : 0;
@@ -1842,7 +1924,7 @@
 		function sendBookingOrder($var=null, $arg=null) {
 			$r = ($var) ? $var : $_REQUEST;
 			
-			if($arg) $res[] = $arg; // extra XML options
+			if($arg) $res[] = $arg; // extra API options
 			
 			if(!is_array($r['booking'])) $this->error('sendBookingOrder failed. Booking array was not found', 1);
 			
@@ -1944,7 +2026,13 @@
 			// add in requesting IP
 			$res[] = '<ip>'.$_SERVER["REMOTE_ADDR"].'</ip>';
 			
+			// GIFT-CARD
+			$res[] = '<expected>'.$r['expected'].'</expected>';
+			($r['gift_card']) ? $res[] = '<gift_card>'.$r['gift_card'].'</gift_card>' : 0;
+			
 			$res[] = '</payment>';
+			
+			($r['waiver']) ? $res[] = '<waiver>'.str_replace('data:image/png;base64,', '', $r['waiver']).'</waiver>' : 0;
 			
 			$request = implode('', $res);
 			
@@ -1952,7 +2040,80 @@
 			
 			return $this->commit_response;
 		}
-		
+
+		// ------------------------------------------------------------------------------
+		// GIFT CARD
+		// ------------------------------------------------------------------------------
+		function sendGiftOrder($request=null) {
+			$r = $request;
+			$res = array();
+
+			if($r['rezgoAction'] != 'addGiftCard') {
+				$this->error('sendGiftOrder failed. Card array was not found', 1);
+			}
+			
+			$res[] = '<card>';
+				$res[] = '<number></number>';
+				// AMOUNT
+				if($r['billing_amount'] == 'custom') {
+					$amnt = $r['custom_billing_amount'];
+				}
+				else {
+					$amnt = $r['billing_amount'];
+				}
+				$res[] = '<amount>'.$amnt.'</amount>';
+				$res[] = '<cash_value></cash_value>';
+				$res[] = '<expires></expires>';
+				$res[] = '<max_uses></max_uses>';
+				// NAME
+				$recipient_name = explode(" ", $r['recipient_name'], 2);
+				$res[] = '<first_name>'.$recipient_name[0].'</first_name>';
+				$res[] = '<last_name>'.$recipient_name[1].'</last_name>';
+				$res[] = '<email>'.$r['recipient_email'].'</email>';
+				// MSG
+				$res[] = '<message>'.urlencode(htmlspecialchars_decode($r['recipient_message'], ENT_QUOTES)).'</message>';
+				
+				$res[] = '<send>1</send>';
+				$res[] = '<payment>';
+					$res[] = '<token>'.$r['gift_card_token'].'</token>';
+					$res[] = '<first_name>'.$r['billing_first_name'].'</first_name>';
+					$res[] = '<last_name>'.$r['billing_last_name'].'</last_name>';
+					$res[] = '<address_1>'.$r['billing_address_1'].'</address_1>';
+					$res[] = '<address_2>'.$r['billing_address_2'].'</address_2>';
+					$res[] = '<city>'.$r['billing_city'].'</city>';
+					$res[] = '<state>'.$r['billing_stateprov'].'</state>';
+					$res[] = '<country>'.$r['billing_country'].'</country>';
+					$res[] = '<postal>'.$r['billing_postal_code'].'</postal>';
+					$res[] = '<phone>'.$r['billing_phone'].'</phone>';
+					$res[] = '<email>'.$r['billing_email'].'</email>';
+					if($r['terms_agree'] == 'on') {
+						$res[] = '<agree_terms>1</agree_terms>';
+					} 
+					else {
+						$res[] = '<agree_terms>0</agree_terms>';
+					}
+					$res[] = '<ip>'.$_SERVER['REMOTE_ADDR'].'</ip>';
+				$res[] = '</payment>';
+			$res[] = '</card>';
+
+
+			$request = implode('', $res);
+			
+			$this->XMLRequest('addGiftCard', $request, 1);
+
+			return $this->commit_response;
+		}
+
+		function getGiftCard($request=null) {
+			if(!$request) {
+				$this->error('No search argument provided, expected card number');
+			}
+
+			$this->XMLRequest('searchGiftCard', $request);
+
+			return $this->gift_card;
+		}
+
 		// this function is for sending a partial commit request, it does not add any values itself
 		function sendPartialCommit($var=null) {
 			$request = '&'.$var;
@@ -1961,7 +2122,7 @@
 			
 			return $this->commit_response;
 		}
-		
+
 		function sendContact($var=null) {
 			$r = ($var) ? $var : $_REQUEST;
 			
@@ -1976,11 +2137,11 @@
 			($r['city']) ? $res[] = 'city='.urlencode($r['city']) : 0;
 			($r['state_prov']) ? $res[] = 'state_prov='.urlencode($r['state_prov']) : 0;
 			($r['country']) ? $res[] = 'country='.urlencode($r['country']) : 0;
-			
+
 			$request = '&'.implode('&', $res);
-			
+
 			$this->XMLRequest(contact, $request);
-			
+
 			return $this->contact_response;
 		}
 		

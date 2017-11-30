@@ -1,29 +1,24 @@
-  
 <div class="container-fluid rezgo-container">
   <div class="row">
-  <? if($site->getPageContent('intro')) { ?>
-    <div class="rezgo-intro col-xs-12">
-        <?=$site->getPageContent('intro')?>
-    </div>
-  <? } ?>
-    
-  <? if($site->getCartState()) { ?>
-    <?=$site->getTemplate('topbar_order')?>
-  <? } ?>
-    
-  <div class="col-xs-12" id="rezgo-list-content"></div>
-  
-  <div class="col-xs-12" id="rezgo-list-content-footer"></div>
-  
-  <div class="col-xs-12" id="rezgo-list-content-more">
-      <button type="button" class="btn btn-default btn-lg btn-block" id="rezgo-more-button" data-rezgo-page="<?=$site->requestNum('pg')?>"><i class="fa fa-list"></i>&nbsp;View more items &hellip;</button>
-  </div>
-  
-  <div class="col-xs-12" id="rezgo-list-content-bottom">&nbsp;</div>
-  
-  </div>  
-</div><!-- // .rezgo-container -->
+	  <? if ($site->getPageContent('intro')) { ?>
+	    <div class="rezgo-intro col-xs-12">
+	        <?=$site->getPageContent('intro')?>
+	    </div>
+	  <? } ?>
 
+	  <?=$site->getTemplate('topbar_order')?>
+
+	  <div class="col-xs-12" id="rezgo-list-content"></div>
+
+	  <div class="col-xs-12" id="rezgo-list-content-footer"></div>
+
+	  <div class="col-xs-12" id="rezgo-list-content-more">
+	      <button type="button" class="btn btn-default btn-lg btn-block" id="rezgo-more-button" data-rezgo-page="<?=$site->requestNum('pg')?>"><i class="fa fa-list"></i>&nbsp;View more items &hellip;</button>
+	  </div>
+
+	  <div class="col-xs-12" id="rezgo-list-content-bottom">&nbsp;</div>
+  </div>
+</div><!-- // .rezgo-container -->
 
 <script>
   var start = 1;

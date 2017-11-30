@@ -6,34 +6,26 @@
 @charset "UTF-8";
 
 /* Smart phones (portrait and landscape) ----------- */
-@media only screen 
-and (min-device-width : 320px) 
-and (max-device-width : 480px) {
-	
-  .rezgo-container {
-    padding-right: 10px !important;
-    padding-left: 5px !important;
-    max-width: 1150px;
-  }
+@media only screen and (min-device-width : 320px) and (max-device-width : 480px) {
 	.rezgo-content-row {
 		margin-left:10px;
 	}
-  .rezgo-list-item {
-    padding-right: 5px !important;
-    padding-left: 5px !important;
+	.rezgo-list-item {
+		padding-right: 5px !important;
+		padding-left: 5px !important;
 		margin:0;
-  }
-  #rezgo-search-container {
-    padding-right: 5px;
-    padding-left: 5px;
-  }
-  p.rezgo-list-breadcrumb {
-	  padding-left:10px;
-  }
-  .rezgo-searchbox {
-	  margin-top:10px !important;
-	  padding:10px !important;
-  }
+	}
+	#rezgo-search-container {
+		padding-right: 5px;
+		padding-left: 5px;
+	}
+	p.rezgo-list-breadcrumb {
+		padding-left:10px;
+	}
+	.rezgo-searchbox {
+		margin-top:10px !important;
+		padding:10px !important;
+	}
 	.rezgo-order-total {
 		margin-left:4px;
 		margin-right:8px;
@@ -45,8 +37,21 @@ and (max-device-width : 480px) {
 		font-size:16px;
 	}
 	.rezgo-chevron-left {
-		padding-left:10px;
+		padding-left:15px;
 		padding-right:0px;
+	}
+	#book_step_two .rezgo-chevron-left {
+		padding-left: 0 !important;
+	}
+	#book_step_two .rezgo-chevron-left .btn {
+		padding: 10px 0 !important;
+		
+	}
+	.rezgo-complete-btn-wrp {
+		padding-right: 0 !important;
+	}
+	.rezgo-complete-btn-wrp .btn-lg {
+		padding: 10px 0 !important;
 	}
 	.rezgo-back-arrow span.glyphicon {
 		font-weight:900;
@@ -72,56 +77,65 @@ and (max-device-width : 480px) {
 	}
 	#rezgo-book-terms .help-block {
 	}
-  .rezgo-right-wrp {
-	  padding-left:0;
-	  padding-right:0;
-  }
-  .rezgo-calendar-wrp {
-	  padding-left:0 !important;
-	  padding-right:0 !important;
+	.rezgo-right-wrp {
+		padding-left:0;
+		padding-right:0;
+	}
+	.rezgo-calendar-wrp {
+		padding-left:0 !important;
+		padding-right:0 !important;
 		margin-right:15px;
 		margin-left:15px;
-	  margin-top:10px;
-  }
-  .rezgo-booking {
+		margin-top:10px;
+	}
+	.rezgo-booking {
 		padding-left:10px !important;
 		padding-right:10px !important;
 		margin-bottom:0 !important;
-  } 
-  .rezgo-book-form {
+	} 
+	.rezgo-book-form {
 		padding-left:10px !important;
 		padding-right:10px !important;
-  }
-  .rezgo-book-form h3, .rezgo-form-group h3 {
-	  font-size:18px !important;
-  }
-  .rezgo-form-group {
+	}
+	.rezgo-book-form h3, .rezgo-form-group h3 {
+		font-size:18px !important;
+	}
+	.rezgo-form-group {
 		padding-left:5px !important;
 		padding-right:0 !important;
-  }
+	}
+	.rezgo-form-group.rezgo-booking {
+		padding: 10px;
+	}
 	.rezgo-form-one {
 		padding-left:10px;
 	}
 	.rezgo-booking-instructions {
 		padding:10px 10px 0 10px !important;
 	}	
-  .rezgo-payment-frame {
-    border: none !important;
-    min-height: inherit;
+	.rezgo-payment-frame {
+		border: none !important;
+		min-height: inherit;
 		padding:0 !important;
-  }
-  .rezgo-total-payable {
-		padding-right:0px !important;
-		margin-left:10px !important;
-		margin-right:20px !important;
-		text-transform:inherit !important;
+	}
+	.rezgo-total-payable {
+		padding: 6px 0 !important;
+		margin: 0 !important;
+		text-transform: inherit !important;
 		text-align:center !important;
-		border-radius:0 !important;
-		font-size:18px !important;
-  }
-  .rezgo-btn-default, .rezgo-btn-book, .rezgo-btn-print, .rezgo-btn-remove {
-	  text-transform:inherit;
-  }
+		border-radius: 0 !important;
+		font-size: 18px !important;
+		line-height: 28px !important;
+	}
+	.rezgo-booking-info {
+		padding-left: 0 !important;
+	}
+	.rezgo-table-container {
+		padding: 0;
+	}
+	.rezgo-btn-default, .rezgo-btn-book, .rezgo-btn-print, .rezgo-btn-remove {
+		text-transform:inherit;
+	}
  .rezgo-confirmation-head h3 {
 	 font-size:18px;
  }
@@ -140,14 +154,14 @@ and (max-device-width : 480px) {
 	}
 	#rezgo-receipt-map-container h3 {
 		margin-left:2px;
-	}	
+	}
+	img {
+		max-width: 100%;
+	}
 }
 
 /* iPads (portrait) ----------- */
-@media only screen 
-and (min-device-width : 768px) 
-and (max-device-width : 1024px) 
-and (orientation : portrait) {
+@media only screen and (min-device-width : 768px) and (max-device-width : 1024px) and (orientation : portrait) {
 	.rezgo-form-group {
 		padding:5px;
 	}
@@ -156,6 +170,12 @@ and (orientation : portrait) {
 		font-weight: bold;
 		padding: 3px 5px;
 	}
+	.rezgo-booking {
+		padding-left:30px !important;
+		padding-right:30px !important;
+		padding-bottom:10px;
+		margin:0 !important;
+	} 	
 	.rezgo-searchbox {
 		padding: 10px;
 	}
@@ -165,9 +185,12 @@ and (orientation : portrait) {
 	.rezgo-confirmation-detail .dl-horizontal dd, .rezgo-confirmation-additional-info .dl-horizontal dd {
 		margin-left:275px !important;
 	}
+	.rezgo-total-payable {
+		font-size: 18px !important;
+	}
 }
 
-@media(min-width:1200px){
+@media(min-width:1200px) {
 	.rezgo-confirmation-detail .dl-horizontal dt, .rezgo-confirmation-additional-info .dl-horizontal dt {
 		width:260px;
 	}
@@ -202,18 +225,25 @@ input[type=number]::-webkit-inner-spin-button {
 }
 
 @media print {
-  .dl-horizontal dt {
-    float: left;
-    width: 160px;
-    overflow: hidden;
-    clear: left;
-    text-align: right;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-  .dl-horizontal dd {
-    margin-left: 180px;
-  }
+	.dl-horizontal dt {
+		float: left;
+		width: 160px;
+		overflow: hidden;
+		clear: left;
+		text-align: right;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+	.dl-horizontal dd {
+		margin-left: 180px;
+	}
+	.rezgo-print-hide {
+		display:none;
+	}
+}
+
+@media print and (orientation: landscape) {
+	* { margin:0 }
 }
 
 /* remove dotted line */
@@ -224,11 +254,11 @@ input[type="button"]::-moz-focus-inner,
 input[type="submit"]::-moz-focus-inner,
 select::-moz-focus-inner,
 input[type="file"] > input[type="button"]::-moz-focus-inner {
-    border: 0;
-    outline : 0;
+		border: 0;
+		outline : 0;
 }
 input:-moz-focus-inner { 
-  border: 0; 
+	border: 0; 
 }
 
 /* label height adjustment */
@@ -336,11 +366,11 @@ input:-moz-focus-inner {
 }
 .rezgo-searchbox:before,
 .rezgo-searchbox:after {
-  display: table;
-  content: " ";
+	display: table;
+	content: " ";
 }
 .rezgo-searchbox:after {
-  clear: both;
+	clear: both;
 }
 .rezgo-list-breadcrumb {
 	margin-top:40px;
@@ -471,18 +501,18 @@ p.rezgo-list-price {
 	bottom:0;*/
 }
 .rezgo-info-left:after {
-  clear: both;
+	clear: both;
 }
 .rezgo-pax-edit-box {
 	background-color:#FFF;
 	border:1px solid #DDD;
 	margin:0px 15px 10px 15px;
 }
-.rezgo-edit-pax-content {    
+.rezgo-edit-pax-content {		
 	padding: 20px;
 	position: relative;
 }
-.rezgo-edit-pax-content a {    
+.rezgo-edit-pax-content a {		
 	font-size:14px;
 	text-decoration:underline;
 	display: inline-block;
@@ -497,6 +527,7 @@ p.rezgo-list-price {
 	padding: 2px 10px;
 	margin-top: 10px;
 	width: auto;	
+	height:45px;
 }
 #rezgo-cart-list h4 {
 	color:#336699;
@@ -513,9 +544,6 @@ p.rezgo-list-price {
 	margin-bottom:40px;
 	display:none;
 }
-.rezgo-more-link {
-	/*display:none;*/
-}
 #rezgo-list-footer {
 	padding:20px;
 }
@@ -530,7 +558,8 @@ p.rezgo-list-price {
 .rezgo-searchbox h4 {
 	color:#FFFFFF;
 }
-.rezgo-date-selector .rezgo-option-selector .panel-heading {
+.rezgo-date-selector .rezgo-option-selector .panel-heading, 
+.rezgo-open-selector .rezgo-option-selector .panel-heading {
 	background:none;
 	border:none;
 	color:#6699CC;
@@ -546,6 +575,7 @@ p.rezgo-list-price {
 .rezgo-option-selector .optionavailable .panel-body {
 	border-top:none;
 }
+.rezgo-open-selector a,
 .rezgo-date-selector a {
 	display:block;
 	text-decoration:none;
@@ -656,14 +686,20 @@ p.rezgo-list-price {
 .rezgo-calendar-wrp {
 	margin-top:4px;
 }
+.rezgo-open-header, 
 .rezgo-calendar-header {
 	border-width:0px;
 	background-color:#1D86C8;
 	font-size:18px;
-	padding:8px 20px;
 	color:#FFFFFF;
 	text-align:center;
 	text-transform:uppercase;
+}
+.rezgo-open-header {
+	padding:8px 10px 2px;
+}
+.rezgo-calendar-header {
+	padding:8px 20px;
 }
 .rezgo-calendar {
 	border-left:10px solid #1D86C8;
@@ -686,21 +722,31 @@ p.rezgo-list-price {
 	height:40px;
 	font-size:16px;
 }
+.rezgo-open-header {
+}
+.rezgo-open-container {
+}
+.rezgo-open-options {
+	border:8px solid #1D86C8;
+	margin-bottom:15px;
+	position:relative;
+}
+
 #rezgo-date-wait {
-  background-color: #fff;
-  border: 1px solid #666;
-  border-radius: 6px;
-  color: #333;
-  height: 30%;
-  line-height: 40px;
-  margin: 10px auto;
-  opacity: 0.95;
-  padding: 10px;
-  position: absolute;
-  right: 5%;
-  text-align: center;
-  top: 20%;
-  width: 90%;
+	background-color: #fff;
+	border: 1px solid #666;
+	border-radius: 6px;
+	color: #333;
+	height: 30%;
+	line-height: 40px;
+	margin: 10px auto;
+	opacity: 0.95;
+	padding: 10px;
+	position: absolute;
+	right: 5%;
+	text-align: center;
+	top: 20%;
+	width: 90%;
 }
 .rezgo-calendar-legend {
 	background:#eee;
@@ -728,22 +774,34 @@ p.rezgo-list-price {
 #rezgo-calendar-memo {
 	display:none;
 }
+.rezgo-open-selector,
 .rezgo-date-selector {
 	padding:10px 8px 0;
 }
-.rezgo-date-selector p.lead{
+.rezgo-open-selector p.lead,
+.rezgo-date-selector p.lead {
 	font-size:16px;	
 }
+.rezgo-open-selector .panel, 
 .rezgo-date-selector .panel {
 	text-shadow:none;
-	border:1px solid #6699cc;
+	border:1px solid #1D86C8;
 }
+.rezgo-open-selector .panel-heading, 
 .rezgo-date-selector .panel-heading {
 	background:#1D86C8;	
 	color:#FFFFFF;
 	overflow:hidden;
 	text-shadow:none;
 	padding: 5px 10px;
+}
+/* for unavailable options */
+.panel-unavailable .panel-heading {
+	background:#ff9900 !important;	
+}
+.rezgo-open-selector .panel.panel-unavailable,
+.rezgo-date-selector .panel.panel-unavailable {
+	border:1px solid #ff9900 !important;
 }
 .rezgo-date-loading {
 	background-color: #999;
@@ -799,7 +857,7 @@ p.rezgo-list-price {
 }
 .rezgo-desc-panel .panel-default > .panel-heading {
 	background-color: #FFFFFF;
-    border-color: none;
+		border-color: none;
 	border-bottom:#1D86C8 dotted 3px;
 	background-image:none;
 }
@@ -946,6 +1004,9 @@ td.rezgo-order-unavailable {
 	margin-top:5px;
 	margin-bottom:5px;
 }
+#book_step_two > hr {
+	margin: 10px 0;
+}
 .rezgo-booking-instructions {
 	line-height:1.5;
 	font-size:15px;
@@ -955,6 +1016,9 @@ td.rezgo-order-unavailable {
 	border-top-left-radius: 6px;
 	border-top-right-radius: 6px;
 	margin-top:20px;
+}
+.rezgo-form-group.rezgo-booking {
+	padding: 20px;
 }
 .rezgo-form-group em.fa-asterisk,
 .rezgo-booking-instructions em.fa-asterisk {
@@ -1021,11 +1085,11 @@ label.rezgo-label-right {
 }
 .rezgo-form-row:before,
 .rezgo-form-row:after {
-  display: table;
-  content: " ";
+	display: table;
+	content: " ";
 }
 .rezgo-form-row:after {
-  clear: both;
+	clear: both;
 }
 .rezgo-form-input, 
 .rezgo-form-label {
@@ -1358,11 +1422,11 @@ label[for=payment_method_credit] img {
 }
 .rezgo-content-row:before,
 .rezgo-content-row:after {
-  display: table;
-  content: " ";
+	display: table;
+	content: " ";
 }
 .rezgo-content-row:after {
-  clear: both;
+	clear: both;
 }
 
 /* about page */
@@ -1533,7 +1597,7 @@ td.rezgo-td-data p {
 	z-index:300; 
 	font-weight:300;
 	box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
-}  
+}	
 .rezgo-map-hr {
 	border-top: 1px solid #e3e3e3;
 	display: block;
@@ -1541,7 +1605,7 @@ td.rezgo-td-data p {
 	height: 0;
 	margin: 4px 0;
 	overflow: hidden;
-}  
+}	
 .rezgo-map-marker {
 	width:18px;
 }
@@ -1593,8 +1657,9 @@ td.rezgo-td-data p {
 	border-radius:4px;
 	margin-bottom:25px;
 	padding:4px;
-	display:none;
-}  
+	display: none;
+}
+
 #rezgo-receipt-map {
 	height:390px; 
 	width:95%;
@@ -1612,10 +1677,10 @@ td.rezgo-td-data p {
 }
 #rezgo-panel-reviews {
 	/*display:none;*/
-}  
+}	
 #rezgo-review-ratings {
 	margin:4px auto;
-}  
+}	
 #rezgo-review-ratings, #rezgo-review-ratings a, #rezgo-review-ratings a:visited {
 	color:#589442;
 	text-decoration:none;
@@ -1679,12 +1744,12 @@ p.rezgo-ta-privacy, #rezgo-terms-panel>p.rezgo-ta-privacy {
 	font-size:16px;
 }
 .rezgo-map-hr {
-  display: block;
-  height: 0px;
-  overflow: hidden;
-  font-size: 0;
-  border-top: 1px solid #E3E3E3;
-  margin: 4px 0;
+	display: block;
+	height: 0px;
+	overflow: hidden;
+	font-size: 0;
+	border-top: 1px solid #E3E3E3;
+	margin: 4px 0;
 }
 
 #rezgo-receipt-map-location {
@@ -1692,10 +1757,771 @@ p.rezgo-ta-privacy, #rezgo-terms-panel>p.rezgo-ta-privacy {
 	margin-bottom:8px;
 }
 
-.rezgo-voucher-para label {
+.rezgo-ticket {
+	margin:10px 30px;
+}
+
+.rezgo-ticket-logo {
+	display: inline-block; 
+	width: 65px; 
+	text-indent: -9999px; 
+	margin-left: 4px; 
+	background:url(../img/rezgo-logo.svg) no-repeat; 
+	background-size: contain;
+}
+
+.rezgo-ticket h3, .rezgo-ticket h4 {
+	margin-top:5px;
+	margin-bottom:5px;
+}
+
+.rezgo-voucher-para label,
+.rezgo-ticket-para label {
 	margin-bottom:0;
 }
 
-/*
+.rezgo-ticket-bottom {
+	page-break-after: always;
+}
 
-*/
+#rezgo-voucher-body label {
+	margin-right:5px;
+}
+
+/* ------------------------------ */
+/* GIFT CARD */
+/* ------------------------------ */
+
+.rezgo-gift-card-container {
+	position:relative;
+	display:block;
+	padding: 30px;
+	margin: 30px auto;
+	background-color: #eee;
+	border-radius: 6px;
+	width: 100%;
+}
+@media only screen and (max-width: 768px) {
+	.rezgo-gift-card-container {
+		padding: 15px;
+		margin: 15px auto;
+	}
+}
+
+.rezgo-gift-card-container hr {
+	margin: 10px 0;
+}
+.rezgo-gift-card-container #payment_methods {
+	padding: 15px;
+	margin: 0;
+}
+.rezgo-gift-card-container #payment_methods i.fa {
+	font-size: 32px !important;
+}
+.rezgo-gift-card-container .cta {
+	margin-top: 20px;
+}
+.rezgo-gift-card-container h3 {
+	margin: 0 0 10px;
+}
+.rezgo-gift-card-container p {
+	padding: 0;
+	margin: 0;
+}
+.rezgo-gift-card-container .terms-conditions {
+	cursor: pointer;
+	text-decoration: none;
+}
+.rezgo-gift-card-container .required-symbol {
+	display: inline-block;
+	color: #a94442;
+}
+
+#rezgo-billing-amount {
+	cursor: pointer;
+}
+#rezgo-gift-errors,
+#rezgo-gift-message {
+	margin-top: 20px;
+}
+#rezgo-custom-billing-amount-wrp {
+	position: relative;
+	display: block;
+}
+#rezgo-custom-billing-amount {
+	padding-right: 30px;
+}
+#rezgo-custom-billing-amount i {
+	position: absolute;
+	right: 10px;
+	top: 10px;
+	cursor: pointer;
+	opacity: .75;
+	font-size: 15px;
+} 
+#rezgo-custom-billing-amount i:hover {
+	opacity: 1;
+}
+#rezgo-credit-card-container {
+	position: relative;
+	display: block;
+	border: 1px solid #ddd;
+	background-color: #f5f5f5;
+	border-radius: 6px;
+	margin-bottom: 15px;
+}
+#rezgo-credit-card-success {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background-color: rgba(255,255,255,.75);
+	border: 1px solid #eee;
+}
+#rezgo-terms-agree {
+	margin: 0 6px 0 0;
+	cursor: pointer;
+}
+#rezgo-terms-panel {
+	overflow-x: hidden;
+	background-color: #f5f5f5;
+}
+#rezgo-terms-panel .collapse-wrapper {
+	padding: 15px;
+}
+#rezgo-gift-payment {
+	width: 100%;
+}
+
+
+/* GIFT CARD GROUP */
+.rezgo-gift-card-group {
+	position: relative;
+	display: block;
+	padding: 25px 20px;
+	background-color: #fff;
+	font-size: 16px;
+	line-height: 1.5;
+}
+@media only screen and (max-width: 768px) {
+	.rezgo-gift-card-group {
+		padding: 15px;
+	}
+}
+.rezgo-gift-card-group .heading {
+	display: block;
+	margin: 0 0 15px;
+}
+.rezgo-gift-card-group .row:last-child .form-group {
+	margin-bottom: 0;
+}
+
+/* PAYMENT CHECK ICON */
+@-webkit-keyframes checkmark {
+		0% {
+				stroke-dashoffset: 50px
+		}
+
+		100% {
+				stroke-dashoffset: 0
+		}
+}
+@-ms-keyframes checkmark {
+		0% {
+				stroke-dashoffset: 50px
+		}
+
+		100% {
+				stroke-dashoffset: 0
+		}
+}
+@keyframes checkmark {
+		0% {
+				stroke-dashoffset: 50px
+		}
+
+		100% {
+				stroke-dashoffset: 0
+		}
+}
+@-webkit-keyframes checkmark-circle {
+		0% {
+				stroke-dashoffset: 240px
+		}
+
+		100% {
+				stroke-dashoffset: 480px
+		}
+}
+@-ms-keyframes checkmark-circle {
+		0% {
+				stroke-dashoffset: 240px
+		}
+
+		100% {
+				stroke-dashoffset: 480px
+		}
+}
+@keyframes checkmark-circle {
+		0% {
+				stroke-dashoffset: 240px
+		}
+
+		100% {
+				stroke-dashoffset: 480px
+		}
+}
+.rezgo-gift-card-container .inlinesvg .svg svg {
+		display: inline
+}
+.rezgo-gift-card-container .icon--order-success svg {
+	position: absolute;
+	left: 50%;
+	top: 50%;
+	margin-left: -36px;
+	margin-top: -36px;
+}
+.rezgo-gift-card-container .icon--order-success svg path {
+		-webkit-animation: checkmark 0.25s ease-in-out 0.7s backwards;
+		animation: checkmark 0.25s ease-in-out 0.7s backwards
+}
+.rezgo-gift-card-container .icon--order-success svg circle {
+		-webkit-animation: checkmark-circle 0.6s ease-in-out backwards;
+		animation: checkmark-circle 0.6s ease-in-out backwards
+}
+
+/* GIFT DETAILS */
+@media only screen and (max-width : 768px) {
+	#rezgo-gift-card-details .rezgo-btn-print {
+		padding: 10px 16px;
+	}
+}
+
+/* GIFT SEARCH */
+#rezgo-gift-card-search {
+	margin-top: 30px;
+}
+#rezgo-gift-card-search .alert {
+	margin: 15px 0 0;
+}
+
+/* GIFT PRINT */
+#rezgo-gift-card-print {
+	position: relative;
+	display: block;
+	padding: 0 15px;
+	margin: 0 auto;
+	background-color: transparent;
+	border-radius: 0;
+	word-wrap: break-word;
+}
+#rezgo-gift-card-print .jumbotron {}
+@media only screen and (max-width : 768px) {
+	#rezgo-gift-card-print .jumbotron {
+		padding: 15px;
+	}
+}
+
+/* GIFT REDEEM */
+#rezgo-gift-card-redeem {
+	padding-bottom: 10px;
+}
+#rezgo-gift-card-redeem .alert {
+	margin: 15px 0 0;
+}
+#rezgo-gift-card-redeem .alert-info-nav {
+	margin: 15px 0 0;
+}
+#rezgo-gift-card-redeem .gift-cart-redeem-reset-btn {
+	cursor: pointer;
+}
+
+/* GIFT MASTER HEADING */
+.rezgo-gift-card-container .master-heading {
+	background-color: #336699;
+	padding: 20px 15px 15px;
+	border-radius: 6px 6px 0 0;
+	text-align: center;
+	color: #fff;
+}
+.rezgo-gift-card-container .master-heading p {
+	font-size: 21px;
+	font-weight: 200;
+	margin-bottom: 15px;
+}
+@media only screen and (max-width : 768px) {
+	.rezgo-gift-card-container .master-heading p {
+		font-size: 18px;
+	}
+}
+
+/* GIFT RECEIPT */
+@media only screen and (max-width : 768px) {
+	.gift-card-receipt table {
+		position: relative;
+	}
+	.gift-card-receipt table tr {
+		border: 1px solid #ccc;
+	}
+	.gift-card-receipt table tr td {
+		width: 50%;
+		float: left;
+		word-wrap: break-word;
+		border: 0;
+	}
+	.gift-card-receipt table:after {
+		position: absolute;
+		top: 0;
+		left: 50%;
+		height: 100%;
+		width: 1px;
+		margin-left: -1px;
+		border-left: 1px solid #ccc;
+		content: '';
+	}
+}
+
+/* GIFT BARCODE */
+.rezgo-gift-card-container .rezgo-voucher-barcode {
+	text-align: right;
+}
+@media only screen and (max-width : 768px) {
+	.rezgo-gift-card-container .rezgo-voucher-barcode {
+		text-align: center;
+	}
+}
+.rezgo-gift-card-container .rezgo-voucher-barcode img {
+	max-width: 100%;	
+}
+
+.order-spacer {
+	margin-left: 10px;
+}
+
+/* REZGO GIFT LINK */
+.rezgo-gift-link {
+	display: block;
+	height: 45px;
+	padding: 0 15px;
+	line-height: 43px;
+	color: #336699;
+	font-weight: 500;
+}
+.top-bar-order .rezgo-gift-link {
+	float: right;
+	margin: 10px 0 0 0;
+	border: 1px solid #ddd;
+	border-radius: 6px;
+}
+.rezgo-right-wrp .rezgo-gift-link {
+	background-color: #1D86C8;
+	border: 2px solid #1D86C8;
+	line-height: 39px;
+	border-radius: 5px;
+	color: #fff;
+	text-align: center;
+}
+.rezgo-right-wrp .rezgo-gift-link:hover {
+	background-color: transparent;
+	border: 2px solid #1D86C8;
+	color: #1D86C8;
+}
+.rezgo-gift-link span {
+	display: inline-block;
+	font-size: 16px;
+}
+.rezgo-gift-link .fa {
+	display: inline-block;
+	margin-right: 2px;
+	font-size: 18px;
+}
+@media only screen and (max-width : 768px) {
+	.rezgo-gift-link-wrp {
+		padding-left: 15px !important;
+		padding-right: 15px !important;
+		margin-top: 10px;
+	}
+}
+@media only screen and (max-width : 480px) {
+	.top-bar-order .rezgo-gift-link,
+	.top-bar-order #rezgo-cart-list {
+		display: block;
+		width: 100%;
+		margin-left: 0;
+		text-align: center;
+	}
+	.top-bar-order #rezgo-cart-list span, 
+	.top-bar-order .rezgo-gift-link span {
+		font-size: 15px;
+	}
+}
+@media only screen {
+	.screen-center {
+		max-width: 768px;
+		margin: 0 auto;
+	}
+}
+
+/* REZGO WAIVER */
+#rezgo-waiver-wrp {
+	padding: 0;
+}
+#rezgo-waiver-wrp .tab-text .body {
+	display: block;
+	background-color: #fff;
+}
+#rezgo-waiver-wrp .tab-text .footer {
+	padding: 15px 0;
+}
+#rezgo-waiver-wrp .tab-sign .body {
+	display: block;
+	margin-top: -20px;
+}
+#rezgo-waiver-wrp .tab-sign .body p {
+	display: block;
+	height: 50px;
+	padding: 15px;
+	margin: 0;
+	line-height: 20px;
+	text-align: center;
+	background-color: #f5f5f5;
+	border-left: 1px solid #eee;
+	border-right: 1px solid #eee;
+}
+#rezgo-waiver-wrp .tab-sign .body canvas {
+	position: relative;
+	display: block;
+	left: auto;
+	right: auto;
+	bottom: auto;
+	top: auto;
+	width: 100%;
+	height: 500px;
+	background-color: #fff;
+	border: 1px solid #eee;
+}
+#rezgo-waiver-wrp .tab-sign .footer {
+	position: relative;
+	display: block;
+	left: auto;
+	right: auto;
+	bottom: auto;
+	top: auto;
+	height: auto;
+	padding: 15px;
+	background-color: #f5f5f5;
+}
+#rezgo-waiver-wrp h1 {
+	display: inline-block;
+	margin-bottom: 0;
+}
+#rezgo-waiver-wrp #rezgo-back {
+	color: #337ab7;
+	text-align: right;
+	line-height: 24px;
+	font-size: 14px;
+	margin-top: -24px;
+}
+#rezgo-waiver-wrp #rezgo-back:hover {
+	color: #23725c;
+	cursor: pointer;
+}
+@media only screen and (max-width : 480px) {
+	#rezgo-waiver-wrp .btn {
+		font-size: 13px;
+	}
+	#rezgo-waiver-wrp .btn i {
+		display: none;
+	}
+}
+
+/* REZGO WAIVER - MODAL */
+#rezgo-waiver-wrp.rezgo-modal-wrp {
+	height: 400px;
+	background-color: #f5f5f5;
+}
+#rezgo-waiver-wrp.rezgo-modal-wrp .tab-text .body {
+	height: 335px;
+	padding: 15px;
+	overflow-y: scroll;
+}
+#rezgo-waiver-wrp.rezgo-modal-wrp .tab-text .footer {
+	height: 65px;
+	padding: 15px;
+}
+#rezgo-waiver-wrp.rezgo-modal-wrp .tab-sign .body {
+	height: 335px;
+	margin-top: 0;
+}
+#rezgo-waiver-wrp.rezgo-modal-wrp .tab-sign .body p {
+	border: 0;
+}
+#rezgo-waiver-wrp.rezgo-modal-wrp .tab-sign .body canvas {
+	height: 285px;
+}
+#rezgo-waiver-wrp.rezgo-modal-wrp .tab-sign .footer {
+	height: 65px;
+}
+#rezgo-waiver-wrp.rezgo-modal-wrp #signature-area img {
+	display: inline-block;
+	margin: 0 20px 20px;
+	max-height: 80px
+}
+@media only screen and (max-width : 480px) {
+	#rezgo-waiver-wrp.rezgo-modal-wrp #rezgo-sign-nav .col-xs-6:first-child,
+	#signature-pad .footer .row .col-xs-6:first-child {
+		padding-right: 5px;
+	}
+	#rezgo-waiver-wrp.rezgo-modal-wrp #rezgo-sign-nav .col-xs-6:last-child,
+	#signature-pad .footer .row .col-xs-6:last-child {
+		padding-left: 5px;
+	}
+}
+
+/* REZGO BOOK - WAIVER */
+#rezgo-waiver-use .text-info {
+	margin-bottom: 5px;
+}
+#rezgo-waiver-use #rezgo-waiver-info {
+	display: block;
+	text-align: left;
+}
+#rezgo-waiver-use #rezgo-waiver-info .msg {
+	display: block;
+	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-size: 14px;
+	font-weight: 400;
+	margin-bottom: 10px;
+}
+#rezgo-waiver-use #rezgo-waiver-info .msg.intro {
+	color: #666;
+}
+#rezgo-waiver-use #rezgo-waiver-info .msg.success {
+	color: #87b87f;
+}
+#rezgo-waiver-use #rezgo-waiver-info .msg.error {
+	margin-top: -10px;
+	color: #b74635;
+}
+#rezgo-waiver-use #rezgo-waiver-signature {
+	text-align: right;
+}
+#rezgo-waiver-use #rezgo-waiver-signature .signature {
+	max-height: 100px;
+	margin-top: -60px;
+}
+#rezgo-waiver-use #rezgo-waiver-input {
+	height: 0;
+	width: 0;
+	border: 0;
+	position: absolute;
+	left: -9999px;
+	top: -9999px;
+}
+@media only screen and (max-width : 991px) {
+	#rezgo-waiver-use #rezgo-waiver-info {
+		text-align: left;
+	}
+	#rezgo-waiver-use #rezgo-waiver-signature {
+		text-align: left;
+	}
+	#rezgo-waiver-use #rezgo-waiver-signature .signature {
+		margin-top: 20px;
+	}
+}
+
+/* BOOK PAGE MOBILE OPTIMIZATION */
+@media only screen and (max-width: 991px) {
+  .rezgo-book-wrp .rezgo-breadcrumb {
+    margin: 0 15px;
+  }
+
+  .rezgo-book-wrp .jumbotron {
+    padding-left: 15px;
+    padding-right: 15px;
+  }
+
+  .rezgo-book-wrp .rezgo-booking-instructions,
+  .rezgo-book-wrp .rezgo-additional-info {
+    margin-left: 0;
+    margin-right: 0;
+    border-radius: 0;
+  }
+
+  .rezgo-book-wrp .rezgo-additional-info {
+    margin-bottom: 15px;
+  }
+
+  .rezgo-book-wrp .rezgo-total-payable-wrp {
+    margin: 0 15px 20px;
+  }
+
+  .rezgo-book-wrp .rezgo-booking-info {
+    margin: 20px 0 0;
+  }
+
+  .rezgo-book-wrp .rezgo-booking-title,
+  .rezgo-book-wrp .rezgo-booking-subtitle,
+  .rezgo-book-wrp .rezgo-billing-wrp,
+  .rezgo-book-wrp #rezgo-gift-card-use,
+  .rezgo-book-wrp #rezgo-waiver-use ,
+  .rezgo-book-wrp .rezgo-payment-wrp,
+  .rezgo-book-wrp .rezgo-booking-cta {
+    padding: 0;
+  }
+
+  .rezgo-book-wrp #rezgo-booking-btn .rezgo-btn-wrp button {
+    width: 100%;
+  }
+  
+  .rezgo-book-wrp .rezgo-total-payable {
+    margin-bottom: 0;
+  }
+
+  .rezgo-book-wrp .rezgo-booking-cta .glyphicon {
+    line-height: 1.33333;
+  }
+}
+@media only screen and (max-width: 480px) {
+  .rezgo-book-wrp .rezgo-additional-info {
+    padding-left: 0 !important;
+  }
+
+  .rezgo-book-wrp .rezgo-custom-form {
+    padding: 0 10px;
+  }
+
+  .rezgo-book-wrp .rezgo-booking-cta button {
+    width: 100%;
+  }
+
+  .rezgo-book-wrp .rezgo-booking-cta .glyphicon {
+    font-size: 16px;
+  }
+
+  .rezgo-book-wrp .rezgo-booking-title,
+  .rezgo-book-wrp .rezgo-booking-info,
+  .rezgo-book-wrp .rezgo-booking-subtitle,
+  .rezgo-book-wrp .rezgo-billing-wrp,
+  .rezgo-book-wrp #rezgo-gift-card-use,
+  .rezgo-book-wrp #rezgo-waiver-use ,
+  .rezgo-book-wrp .rezgo-payment-wrp,
+  .rezgo-book-wrp #book_step_two .rezgo-booking-cta  {
+    margin: 0;
+    padding: 0 15px;
+  }
+
+  .rezgo-book-wrp .rezgo-total-payable {
+    text-align: right !important;
+    padding: 10px !important;
+  }
+
+  .rezgo-book-wrp .rezgo-booking-title {
+    font-size:24px !important;
+  }
+
+  .rezgo-book-wrp #book_step_two .rezgo-booking-title {
+    margin-bottom: 15px;
+  }
+
+  .rezgo-book-wrp .rezgo-booking-info {
+    margin: 0;
+    background-color: transparent;
+  }
+
+  .rezgo-book-wrp .rezgo-booking-info .rezgo-table-container,
+  .rezgo-book-wrp .rezgo-booking-info .rezgo-billing-cart {
+    font-size: 13px !important;
+  }
+
+  .rezgo-book-wrp #rezgo-waiver-show {
+    font-size: 14px;
+  }
+}
+
+/* ORDER PAGE MOBILE OPTIMIZATION */
+@media only screen and (max-width: 480px) {
+	#rezgo-order-wrp .rezgo-cart-title-wrp {
+		padding: 15px 0 !important;
+		margin: 0;
+	}
+	#rezgo-order-wrp .rezgo-cart-table-wrp {
+		padding: 0 !important;
+		margin: 0;
+	}
+	#rezgo-order-wrp .rezgo-cart-table-wrp table {
+		font-size: 12px;
+	}
+	#rezgo-order-wrp .rezgo-form-group-short {
+		padding: 0 15px;
+		margin: 0;
+	}
+	#rezgo-order-wrp .rezgo-cart-edit-wrp {
+		padding: 0;
+		margin: 0;
+	}
+	#rezgo-order-wrp .rezgo-order-total-wrp {
+		padding: 0;
+		margin: 0;
+	}
+	#rezgo-order-wrp .rezgo-order-total {
+		margin-left: 0;
+		margin-right: 0;
+		padding-right: 15px;
+	}
+	#rezgo-order-wrp .rezgo-pax-edit-box {
+		margin: 0 0 10px 0;
+	}
+	#rezgo-order-wrp #rezgo-promo-form {
+		margin-bottom: 20px;
+	}
+}
+
+/* xxs-size container, for phone-sized interfaces */
+@media (max-width: 460px) {
+	/* extend the bootstrap scaffold to include a new hidden-xxs */
+	.hidden-xxs, .none-xxs {
+		display:none !important;
+	}
+	.visible-xxs {
+		display:inline-block !important;
+	}
+	/* adding a xxs-size grid size */
+	.col-xxs-1 {
+		width: 8.33333% !important;
+	}
+	.col-xxs-2 {
+		width: 16.6666% !important;
+	}
+	.col-xxs-3 {
+		width: 25% !important;
+	}
+	.col-xxs-4 {
+		width: 33.3333% !important;
+	}
+	.col-xxs-5 {
+		width: 41.6666% !important;
+	}
+	.col-xxs-6 {
+		width: 50% !important;
+	}
+	.col-xxs-7 {
+		width: 58.3333% !important;
+	}
+	.col-xxs-8 {
+		width: 66.6666% !important;
+	}
+	.col-xxs-9 {
+		width: 75% !important;
+	}
+	.col-xxs-10 {
+		width: 83.3333% !important;
+	}
+	.col-xxs-11 {
+		width: 91.6666% !important;
+	}
+	.col-xxs-12 {
+		width: 100% !important;
+	}
+}

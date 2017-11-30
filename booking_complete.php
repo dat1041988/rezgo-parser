@@ -11,6 +11,7 @@
 	
 	// send the user home if they shoulden't be here
 	if(!$trans_num) $site->sendTo($site->base."/booking-not-found");
+
 	// start a session so we can grab the analytics code
 	session_start();
 	
@@ -24,7 +25,7 @@
 <?=$site->getTemplate('frame_header')?>
 
 
-<? if(strlen($trans_num) == 16) { ?>
+<? if (strlen($trans_num) == 16) { ?>
 	
 	<?=$site->getTemplate('booking_order')?>
   

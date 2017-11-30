@@ -8,34 +8,31 @@ $ta_key = '2E2B919141464E31B384DE1026A2DE7B';
 <link href="<?=$this->path?>/css/responsive-calendar.css" rel="stylesheet">
 <link href="<?=$this->path?>/css/responsive-calendar.rezgo.css" rel="stylesheet">
 
-<script type="text/javascript" src="<?=$this->path?>/js/responsive-calendar.min.js"></script>  
-	
-<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDkCWu6MoROFlsRGoqFj-AXPEApsVjyTiA&libraries=places"></script>		
-	
+<script type="text/javascript" src="<?=$this->path?>/js/responsive-calendar.min.js"></script>
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDkCWu6MoROFlsRGoqFj-AXPEApsVjyTiA&libraries=places"></script>
+
 <div class="container-fluid rezgo-container">
 
 <?
-	$items = $site->getTours('t=com&q='.$_REQUEST['com'].'&f[uid]='.$_REQUEST['option'].'&d='.$_REQUEST['date']);
+$items = $site->getTours('t=com&q='.$_REQUEST['com'].'&f[uid]='.$_REQUEST['option'].'&d='.$_REQUEST['date']);
+
+if(!$items) { ?>
 	
-	if(!$items) { ?>
-  
-  <div class="jumbotron"> 
-    <h3><i class="fa fa-exclamation-triangle"></i> Item not found</h3>
-    <p class="lead">Sorry, the item you are looking for is not available or has no available options.</p>
+	<div class="jumbotron"> 
+		<h3><i class="fa fa-exclamation-triangle"></i> Item not found</h3>
+		<p class="lead">Sorry, the item you are looking for is not available or has no available options.</p>
     <p><a class="btn btn-lg btn-info" href="<?=$site->base?>/" role="button">Return to home</a></p>
-  </div>
-  
-<? } else { ?>
-		
-	<? 
+	</div>
 	
+<? } else { ?>
+	<? 
 	function date_sort($a, $b) {
 		if ($a['start_date'] == $b['start_date']) {
 				return 0;
 		}
 		return ($a['start_date'] < $b['start_date']) ? -1 : 1;
 	}
-	
+
 	function recursive_array_search($needle,$haystack) {
 			foreach($haystack as $key=>$value) {
 					$current_key=$key;
@@ -45,37 +42,47 @@ $ta_key = '2E2B919141464E31B384DE1026A2DE7B';
 			}
 			return false;
 	}	
-	
-	$calendar_options = array();
+
+	$day_options = array();
 	$single_dates = 0;
-	$non_single_dates = 0;
-	
+	$calendar_dates = 0;
+	$open_dates = 0;
 	$item_count = 1;
-	
-	foreach( $items as $item ) { 
-		
+
+	foreach($items as $item) {
 		$site->readItem($item);
 		
-		// check if single dates or calendar
-		$option_start_date = (int) $item->start_date;
-		if (recursive_array_search($option_start_date, $calendar_options) === FALSE) {
-			$calendar_options[(int) $item->uid]['start_date'] = $option_start_date;
+		$day_start = (int) $item->start_date;
+		
+		if (recursive_array_search($day_start, $day_options) === FALSE) {
+			$day_options[(int) $item->uid]['start_date'] = $day_start;
 		}
 		
-		if ((string) $item->date_selection == 'single') { $single_dates++; } else { $non_single_dates++; }
+		// calendar availability types
+		$calendar_selects = array('always', 'range', 'week', 'days');
+		// open availability types
+		$open_selects = array('never', 'number', 'specific');
+		
+		$date_selection = (string) $item->date_selection;
+		
+		// get option availability types (single, open or calendar)
+		if ($date_selection == 'single') { 
+			$single_dates++; 
+		} elseif (in_array($date_selection, $open_selects)) { 
+			$open_dates++; 
+		} elseif (in_array($date_selection, $calendar_selects)) { 
+			$calendar_dates++; 
+		}
 		
 		// prepare media gallery
 		if ($item_count == 1) { // we only need to grab it for the first item
-			
 			$media_count = $item->media->attributes()->value;
-			
+
 			$item_cutoff = $item->cutoff;
-			
+
 			if($media_count > 0) {
-				
 				$m = 0;
 				foreach( $site->getTourMedia($item) as $media ) { 
-				
 					if ($m == 0) {
 						$pinterest_img_path = $media->path;
 					}
@@ -88,7 +95,7 @@ $ta_key = '2E2B919141464E31B384DE1026A2DE7B';
 							<img src="'.$media->path.'" alt="'.$media->caption.'">
 							<div class="carousel-caption">'.$media->caption.'</div>
 						</div>
-					';        
+					';				
 				
 					$m++;
 				} 
@@ -99,22 +106,22 @@ $ta_key = '2E2B919141464E31B384DE1026A2DE7B';
 		
 		$item_count++;
 	}
-	
+
 	// resort by date
-	usort($calendar_options, 'date_sort'); 
-	
+	usort($day_options, 'date_sort'); 
+
 	// setup calendar start days
 	$company = $site->getCompanyDetails();
 	// set defaults for start of availability
 	$start_day = date('j', strtotime('+'.$item_cutoff.' days '.$company->time_format.' hours'));
 	$open_cal_day = date('Y-m-d', strtotime('+'.$item_cutoff.' days '.$company->time_format.' hours'));
-	
+
 	// get the available dates
 	$site->getCalendar($item->uid, $_REQUEST['date']); 
-	
+
 	$cal_day_set = FALSE;
-	
-	foreach ( $site->getCalendarDays() as $day ) {
+
+	foreach($site->getCalendarDays() as $day) {
 		
 		if ($day->cond == 'a') { $class = ''; } // available
 		elseif ($day->cond == 'p') { $class = 'passed'; }
@@ -131,8 +138,8 @@ $ta_key = '2E2B919141464E31B384DE1026A2DE7B';
 			
 			$request_date = strtotime($_REQUEST['date']);
 			$calendar_start = date('Y-m', $request_date);
-			$start_day =  date('j', $request_date);
-			$open_cal_day =  date('Y-m-d', $request_date);
+			$start_day =	date('j', $request_date);
+			$open_cal_day =	date('Y-m-d', $request_date);
 			$cal_day_set = TRUE;
 			
 		} else {
@@ -142,237 +149,247 @@ $ta_key = '2E2B919141464E31B384DE1026A2DE7B';
 			}
 			// redefine start days
 			if ($day->cond == 'a' && !$cal_day_set) { 
-				$start_day =  date('j', $day->date);
-				$open_cal_day =  date('Y-m-d', $day->date);
+				$start_day =	date('j', $day->date);
+				$open_cal_day =	date('Y-m-d', $day->date);
 				$cal_day_set = TRUE;
 			} 
 		
 		}
 		
 	}
-		
+
 	$calendar_events = trim($calendar_events, ','."\n");
-  
-  ?>
-  
-      	
-  <div class="row" itemscope itemtype="http://schema.org/Product">
-	  
-	  <div class="col-md-8 col-sm-7 col-xs-12">
-	    <h1 itemprop="name" id="rezgo-item-name"><span><?=utf8_decode($item->item)?></span></h1>
-	  </div>
-  
-	  <div class="col-md-4 col-sm-5 col-xs-12">
-	    <div class="row">
-	      <div class="col-xs-5 col-sm-6">&nbsp;
-					<?
-					if($site->getCartState()) {
-	          $cart = $site->getCart();
-	          if($cart) {
+	?>
+
+	<div class="row" itemscope itemtype="http://schema.org/Product">
+		<div class="col-md-8 col-sm-7 col-xs-12">
+			<h1 itemprop="name" id="rezgo-item-name"><span><?=$item->item?></span></h1>
+		</div>
+
+		<div class="col-md-4 col-sm-5 col-xs-12">
+			<div class="row">
+				<div class="col-xs-5 col-sm-6">&nbsp;
+					<? if($site->getCartState()) {
+						$cart = $site->getCart();
+						if($cart) {
 							echo '<a class="rezgo-cart-link badge pull-left" href="'.$site->base.'/order"><i class="fa fa-shopping-cart"></i>&nbsp;<span class="hidden-xs">'.count($cart).' item'.((count($cart) > 1) ? 's' : '').' in </span>order<span class="visible-xs-inline"> ('.count($cart).')</span></a>';
-	        	}
-					}
-					?>      
-	      </div>
-	      
-	      <div class="col-xs-7 col-sm-6">
-		      <div class="rezgo-social-box">
-			      <span id="rezgo-social-links">
-              <a href="javascript:void(0);" title="Pin this on Pinterest" id="social_pinterest" onclick="window.open('http://www.pinterest.com/pin/create/button/?url=<?=urlencode('http://'.$_SERVER['HTTP_HOST'].$site->base.'/details/'.$item->com.'/'.$site->seoEncode($item->item))?>&media=<?=$pinterest_img_path?>&description=<?=urlencode($item->item).'%0A'.urlencode(strip_tags($item->details->overview))?>','pinterest','location=0,status=0,scrollbars=1,width=750,height=320');"><i class="fa fa-pinterest-square" id="pinterest_icon">&nbsp;</i></a>            
-              <a href="javascript:void(0);" title="Share this on Twitter" id="social_twitter" onclick="window.open('http://twitter.com/share?text=<?=urlencode('I found this great thing to do! "'.$item->item.'"')?>&url=' + escape(top.location.href)<? if($site->exists($site->getTwitterName())) { ?> + '&via=<?=$site->getTwitterName()?>'<? } ?>,'tweet','location=1,status=1,scrollbars=1,width=500,height=350');"><i class="fa fa-twitter-square" id="social_twitter_icon">&nbsp;</i></a>
-              <a href="javascript:void(0);" title="Share this on Facebook" id="social_facebook" onclick="window.open('http://www.facebook.com/sharer.php?u=' + escape(top.location.href) + '&t=<?=urlencode($item->item)?>','facebook','location=1,status=1,scrollbars=1,width=600,height=400');"><i class="fa fa-facebook-square" id="social_facebook_icon">&nbsp;</i></a>
-              <a href="javascript:void(0);" id="social_url" data-toggle="popover" data-ajaxload="<?=$site->base?>/shorturl_ajax.php?url=<?= urlencode('http://'.$_SERVER['HTTP_HOST'].$site->base.'/details/'.$item->com.'/'.$site->seoEncode($item->item)) ?>"><i class="fa fa-share-alt-square" id="social_url_icon">&nbsp;</i></a>
-			      </span>		      
-		      </div>
-	      </div>
-	      
-	    </div>
-	  </div><!-- //  promocode/cart -->
-		
-  </div> <!-- //  row title / mini cart -->
-  
-  <div class="row">
-  
-  	<div class="col-md-8 col-sm-7 col-xs-12 rezgo-left-wrp">
-	
+						}
+					} ?>
+				</div>
+
+				<div class="col-xs-7 col-sm-6">
+					<div class="rezgo-social-box">
+						<span id="rezgo-social-links">
+							<a href="javascript:void(0);" title="Pin this on Pinterest" id="social_pinterest" onclick="window.open('http://www.pinterest.com/pin/create/button/?url=<?=urlencode('http://'.$_SERVER['HTTP_HOST'].$site->base.'/details/'.$item->com.'/'.$site->seoEncode($item->item))?>&media=<?=$pinterest_img_path?>&description=<?=urlencode($item->item).'%0A'.urlencode(strip_tags($item->details->overview))?>','pinterest','location=0,status=0,scrollbars=1,width=750,height=320');"><i class="fa fa-pinterest-square" id="pinterest_icon">&nbsp;</i></a>						
+							<a href="javascript:void(0);" title="Share this on Twitter" id="social_twitter" onclick="window.open('http://twitter.com/share?text=<?=urlencode('I found this great thing to do! "'.$item->item.'"')?>&url=' + escape(top.location.href)<? if($site->exists($site->getTwitterName())) { ?> + '&via=<?=$site->getTwitterName()?>'<? } ?>,'tweet','location=1,status=1,scrollbars=1,width=500,height=350');"><i class="fa fa-twitter-square" id="social_twitter_icon">&nbsp;</i></a>
+							<a href="javascript:void(0);" title="Share this on Facebook" id="social_facebook" onclick="window.open('http://www.facebook.com/sharer.php?u=' + escape(top.location.href) + '&t=<?=urlencode($item->item)?>','facebook','location=1,status=1,scrollbars=1,width=600,height=400');"><i class="fa fa-facebook-square" id="social_facebook_icon">&nbsp;</i></a>
+							<a href="javascript:void(0);" id="social_url" data-toggle="popover" data-ajaxload="<?=$site->base?>/shorturl_ajax.php?url=<?= urlencode('http://'.$_SERVER['HTTP_HOST'].$site->base.'/details/'.$item->com.'/'.$site->seoEncode($item->item)) ?>"><i class="fa fa-share-alt-square" id="social_url_icon">&nbsp;</i></a>
+						</span>
+					</div>
+				</div>
+			</div>
+		</div><!-- // promocode/cart -->
+
+	</div> <!-- // row title / mini cart -->
+
+	<div class="row">
+		<div class="col-md-8 col-sm-7 col-xs-12 rezgo-left-wrp">
+
 			<?php if($media_count > 0) { ?>
-	    
-	    <div id="rezgo-img-carousel" class="carousel slide" data-ride="carousel">    
-	      <ol class="carousel-indicators">
-	      	<?=$indicators?>
-	      </ol>
-	      <div class="carousel-inner">
-	      	<?=$media_items?>
-	      </div>
-	      <a class="left carousel-control" data-target="#rezgo-img-carousel" data-slide="prev">
-	        <span class="glyphicon glyphicon-chevron-left"></span>
-	      </a>
-	      <a class="right carousel-control" data-target="#rezgo-img-carousel" data-slide="next">
-	        <span class="glyphicon glyphicon-chevron-right"></span>
-	      </a>
-	    </div><!-- // #rezgo-img-carousel -->
-	    
-	    <? } ?>
-	   
-  	</div>
-  	
-  	<div class="col-md-4 col-sm-5 col-xs-12 rezgo-right-wrp pull-right">
-      
-		  <? if ( $non_single_dates > 0 || $single_dates > 10 ) { ?>
-		  
-		  <div class="hidden visible-xs">&nbsp;</div>
-		  
-		  <div class="rezgo-calendar-wrp">
-		    <div class="rezgo-calendar-header">
-		      <span>Choose a Date</span>
-		    </div>
-		    <div class="rezgo-calendar">
-		      <div class="responsive-calendar" id="rezgo-calendar">
-		        <div class="controls">
-		          <a class="pull-left" data-go="prev"><div class="glyphicon glyphicon-chevron-left"></div></a>
-		          <h4><span data-head-year></span> <span data-head-month></span></h4>
-		          <a class="pull-right" data-go="next"><div class="glyphicon glyphicon-chevron-right"></div></a>
-		        </div>
-		        <? if ($company->start_week == 'mon') { ?>
-            <div class="day-headers">
-		          <div class="day header">Mon</div>
-		          <div class="day header">Tue</div>
-		          <div class="day header">Wed</div>
-		          <div class="day header">Thu</div>
-		          <div class="day header">Fri</div>
-		          <div class="day header">Sat</div>
-		          <div class="day header">Sun</div>
-		        </div>
-            <? } else { ?>
-		        <div class="day-headers">
-		          <div class="day header">Sun</div>
-		          <div class="day header">Mon</div>
-		          <div class="day header">Tue</div>
-		          <div class="day header">Wed</div>
-		          <div class="day header">Thu</div>
-		          <div class="day header">Fri</div>
-		          <div class="day header">Sat</div>
-		        </div>
-            <? } ?>
-		        <div class="days" data-group="days"></div>
-		      </div>
-		      <div class="rezgo-calendar-legend">
-		        <span class="available">&nbsp;</span><span class="text-available"><span>&nbsp;Available&nbsp;&nbsp;</span></span>
-		        <span class="full">&nbsp;</span><span class="text-full"><span>&nbsp;Full&nbsp;&nbsp;</span></span>
-		        <span class="unavailable">&nbsp;</span><span class="text-unavailable"><span>&nbsp;Unavailable</span></span>
-            <div id="rezgo-calendar-memo"></div>
-		      </div>
-		      <div id="rezgo-scrollto-options"></div>
-		      <div class="rezgo-date-selector" style="display:none;">
-		        <!-- available options will populate here -->
-		        <div class="rezgo-date-options"></div>
-		      </div>
-		      <div id="rezgo-date-script" style="display:none;">
-		        <!-- ajax script will be inserted here -->
-		      </div>
-		    </div>
-        
-				<? if(!$site->isVendor()) { ?>
-        <div id="rezgo-details-promo"><!-- hidden by default -->
-          <div class="rezgo-form-group-short">
-          <? if (!$_SESSION['rezgo_promo']) { ?>
-            <form class="form-inline" id="rezgo-promo-form" role="form" onsubmit="top.location.href = '<?=$_SERVER['HTTP_REFERER']?>/?promo=' + $('#rezgo-promo-code').val(); return false;">
-              <label for="rezgo-promo-code"><i class="fa fa-tags"></i>&nbsp;<span class="rezgo-promo-label"><span>Promo code</span></span></label>&nbsp;
-              <div class="input-group">
-              <input type="text" class="form-control" id="rezgo-promo-code" name="promo" placeholder="Enter Promo Code" value="<?=($_SESSION['rezgo_promo'] ? $_SESSION['rezgo_promo'] : '')?>" />
-              <span class="input-group-btn"><button class="btn rezgo-btn-default" type="submit">Apply</button></span>
-              </div>
-            </form>
-          <? } else { ?>
-            <label for="rezgo-promo-code"><i class="fa fa-tags"></i>&nbsp;<span class="rezgo-promo-label"><span>Promo code</span></span></label>&nbsp;
-            <span id="rezgo-promo-value"><?=$_SESSION['rezgo_promo']?></span>&nbsp;
-            <a id="rezgo-promo-clear" class="btn rezgo-btn-default btn-sm" href="<?=$_SERVER['HTTP_REFERER']?>/?promo=" target="_top">clear</a>
-          <? } ?>
-          </div>
-        </div>
-        <? } ?>
-        
-		  </div>
-		  <!-- //  calendar -->
-      
-		  <? } else { ?>
-      
-		  <div class="rezgo-calendar-wrp">        
-					<? 
-          $opt = 1; // pass an option counter to calendar day
-          foreach ($calendar_options as $option) { 
-          
-          ?>
-          <div class="rezgo-calendar-single" id="rezgo-calendar-single-<?=$opt?>" style="display:none;">
-          <div class="rezgo-calendar-single-head"><span class="rezgo-calendar-avail"><span>Availability&nbsp;for:</span></span> <strong><?=date((string) $company->date_format, $option['start_date'])?></strong></div>
-            <div class="rezgo-date-selector" id="rezgo-single-date-<?=$opt?>"></div>
-            
-            <script type="text/javascript">
-              
-              $(document).ready(function () {
-                
-                $.ajax({
-                  url: '<?=$site->base?>/calendar_day.php?com=<?=$item->com?>&date=<?=date('Y-m-d', $option['start_date'])?>&option_num=<?=$opt?>',
-                  context: document.body,
-                  success: function(data) {
-										if (data.indexOf('rezgo-option-hide') == -1) {
-											$('#rezgo-single-date-<?=$opt?>').html(data).slideDown('fast');
-											$('#rezgo-calendar-single-<?=$opt?>').fadeIn('fast');
+
+			<div id="rezgo-img-carousel" class="carousel slide" data-ride="carousel">
+				<ol class="carousel-indicators">
+					<?=$indicators?>
+				</ol>
+				<div class="carousel-inner">
+					<?=$media_items?>
+				</div>
+				<a class="left carousel-control" data-target="#rezgo-img-carousel" data-slide="prev">
+					<span class="glyphicon glyphicon-chevron-left"></span>
+				</a>
+				<a class="right carousel-control" data-target="#rezgo-img-carousel" data-slide="next">
+					<span class="glyphicon glyphicon-chevron-right"></span>
+				</a>
+			</div><!-- // #rezgo-img-carousel -->
+			<? } ?>
+		</div>
+
+		<div class="col-md-4 col-sm-5 col-xs-12 rezgo-right-wrp pull-right">
+			<? if ($open_dates > 0) { ?>
+				<div class="rezgo-calendar-wrp">
+					<div class="rezgo-open-header">
+						<span>Open Options</span>
+					</div>
+					<div class="rezgo-open-container">
+					
+						<? $open_date = date('Y-m-d', strtotime('+1 day')); ?>
+					
+						<div class="rezgo-open-options" id="rezgo-open-option-<?=$opt?>" style="display:none;">
+					
+							<div class="rezgo-open-selector" id="rezgo-open-date-<?=$opt?>"></div>
+						
+							<script type="text/javascript">
+							
+								$(document).ready(function () {
+								
+									$.ajax({
+										url: '<?=$site->base?>/calendar_day.php?com=<?=$item->com?>&date=<?=$open_date?>&type=open',
+										context: document.body,
+										success: function(data) {
+											if (data.indexOf('rezgo-option-hide') == -1) {
+												$('#rezgo-open-date-<?=$opt?>').html(data).slideDown('fast');
+												$('#rezgo-open-option-<?=$opt?>').fadeIn('fast');
+											}
 										}
-                  }
-                });
-                
-              });
-              
-            </script> 
-          </div>
-          <?
-            $opt++;
-           } // end foreach ($calendar_options) 
-          ?> 
-          
-        <div id="rezgo-calendar-memo"></div>
-          
-				<? if(!$site->isVendor()) { ?>
-        <div class="clear">&nbsp;</div>
-        <div id="rezgo-details-promo"><!-- hidden by default -->
-          <div class="rezgo-form-group-short">
-          <? if (!$_SESSION['rezgo_promo']) { ?>
-            <form class="form-inline" id="rezgo-promo-form" role="form" onsubmit="top.location.href = '<?=$_SERVER['HTTP_REFERER']?>/?promo=' + $('#rezgo-promo-code').val(); return false;">
-              <label for="rezgo-promo-code"><i class="fa fa-tags"></i>&nbsp;<span class="rezgo-promo-label"><span>Promo code</span></span></label>&nbsp;
-              <div class="input-group">
-              <input type="text" class="form-control" id="rezgo-promo-code" name="promo" placeholder="Enter Promo Code" value="<?=($_SESSION['rezgo_promo'] ? $_SESSION['rezgo_promo'] : '')?>" />
-              <span class="input-group-btn"><button class="btn rezgo-btn-default" type="submit">Apply</button></span>
-              </div>
-            </form>
-          <? } else { ?>
-            <label for="rezgo-promo-code"><i class="fa fa-tags"></i>&nbsp;<span class="rezgo-promo-label"><span>Promo code</span></span></label>&nbsp;
-            <span id="rezgo-promo-value"><?=$_SESSION['rezgo_promo']?></span>&nbsp;
-            <a id="rezgo-promo-clear" class="btn rezgo-btn-default btn-sm" href="<?=$_SERVER['HTTP_REFERER']?>/?promo=" target="_top">clear</a>
-          <? } ?>
-          </div>
-        </div>
-        <? } ?>
-		      
-		  </div><!-- // .rezgo-calendar-wrp -->
-		  <!-- // single day booking -->
-		  <? } // end if ( $non_single_dates > 0 ) ?>
-		  
-  	</div>
-  	
+									});
+								
+								});
+							
+							</script> 
+						</div>
+					
+						<div id="rezgo-open-memo"></div>
+					</div>
+				</div>
+			<? } // end if $open_dates > 0 ?>
+
+			<? if ( $calendar_dates > 0 || $single_dates > 10 ) { ?>
+				<div class="hidden visible-xs">&nbsp;</div>
+
+				<div class="rezgo-calendar-wrp">
+					<div class="rezgo-calendar-header">
+						<span>Choose a Date</span>
+					</div>
+					<div class="rezgo-calendar">
+						<div class="responsive-calendar" id="rezgo-calendar">
+							<div class="controls">
+								<a class="pull-left" data-go="prev"><div class="glyphicon glyphicon-chevron-left"></div></a>
+								<h4><span data-head-year></span> <span data-head-month></span></h4>
+								<a class="pull-right" data-go="next"><div class="glyphicon glyphicon-chevron-right"></div></a>
+							</div>
+							<? if ($company->start_week == 'mon') { ?>
+							<div class="day-headers">
+								<div class="day header">Mon</div>
+								<div class="day header">Tue</div>
+								<div class="day header">Wed</div>
+								<div class="day header">Thu</div>
+								<div class="day header">Fri</div>
+								<div class="day header">Sat</div>
+								<div class="day header">Sun</div>
+							</div>
+							<? } else { ?>
+							<div class="day-headers">
+								<div class="day header">Sun</div>
+								<div class="day header">Mon</div>
+								<div class="day header">Tue</div>
+								<div class="day header">Wed</div>
+								<div class="day header">Thu</div>
+								<div class="day header">Fri</div>
+								<div class="day header">Sat</div>
+							</div>
+							<? } ?>
+							<div class="days" data-group="days"></div>
+						</div>
+						<div class="rezgo-calendar-legend">
+							<span class="available">&nbsp;</span><span class="text-available"><span>&nbsp;Available&nbsp;&nbsp;</span></span>
+							<span class="full">&nbsp;</span><span class="text-full"><span>&nbsp;Full&nbsp;&nbsp;</span></span>
+							<span class="unavailable">&nbsp;</span><span class="text-unavailable"><span>&nbsp;Unavailable</span></span>
+							<div id="rezgo-calendar-memo"></div>
+						</div>
+						<div id="rezgo-scrollto-options"></div>
+						<div class="rezgo-date-selector" style="display:none;">
+							<!-- available options will populate here -->
+							<div class="rezgo-date-options"></div>
+						</div>
+						<div id="rezgo-date-script" style="display:none;">
+							<!-- ajax script will be inserted here -->
+						</div>
+					</div>
+				</div>
+			<? } elseif ( ($calendar_dates == 0 || $single_dates <= 10) && $open_dates == 0 ) { // single day options ?>
+				<div class="rezgo-calendar-wrp">
+						<? 
+						$opt = 1; // pass an option counter to calendar day
+						foreach ($day_options as $option) { 
+						?>
+
+						<div class="rezgo-calendar-single" id="rezgo-calendar-single-<?=$opt?>" style="display:none;">
+
+						<div class="rezgo-calendar-single-head"><span class="rezgo-calendar-avail"><span>Availability&nbsp;for:</span></span> <strong><?=date((string) $company->date_format, $option['start_date'])?></strong></div>
+							<div class="rezgo-date-selector" id="rezgo-single-date-<?=$opt?>"></div>
+						
+							<script type="text/javascript">
+							
+								$(document).ready(function () {
+								
+									$.ajax({
+										url: '<?=$site->base?>/calendar_day.php?com=<?=$item->com?>&date=<?=date('Y-m-d', $option['start_date'])?>&option_num=<?=$opt?>&type=single',
+										context: document.body,
+										success: function(data) {
+											if (data.indexOf('rezgo-option-hide') == -1) {
+												$('#rezgo-single-date-<?=$opt?>').html(data).slideDown('fast');
+												$('#rezgo-calendar-single-<?=$opt?>').fadeIn('fast');
+											}
+										}
+									});
+								
+								});
+							
+							</script> 
+						</div>
+						<?
+							$opt++;
+						 } // end foreach ($day_options) 
+						?> 
+					
+					<div id="rezgo-single-memo"></div>
+				</div><!-- // .rezgo-calendar-wrp -->
+			<!-- // single day booking -->
+			<? } // end single dates > 0 ?>
+
+			<? if (!$site->isVendor() && $site->getGateway()) { ?>
+				<div id="rezgo-gift-link-use" class="rezgo-gift-link-wrp">
+					<a class="rezgo-gift-link" href="<?=$site->base?>/gift-card">
+						<i class="fa fa-gift"></i><span>&nbsp;Buy a gift card</span>
+					</a>
+				</div>
+			<? } ?>
+
+			<? if (!$site->isVendor()) { ?>
+				<div class="clear">&nbsp;</div>
+				<div id="rezgo-details-promo"><!-- hidden by default -->
+					<div class="rezgo-form-group-short">
+					<? if (!$_SESSION['rezgo_promo']) { ?>
+						<form class="form-inline" id="rezgo-promo-form" role="form" onsubmit="top.location.href = '<?=$_SERVER['HTTP_REFERER']?>/?promo=' + $('#rezgo-promo-code').val(); return false;">
+							<label for="rezgo-promo-code"><i class="fa fa-tags"></i>&nbsp;<span class="rezgo-promo-label"><span>Promo code</span></span></label>&nbsp;
+							<div class="input-group">
+							<input type="text" class="form-control" id="rezgo-promo-code" name="promo" placeholder="Enter Promo Code" value="<?=($_SESSION['rezgo_promo'] ? $_SESSION['rezgo_promo'] : '')?>" />
+							<span class="input-group-btn"><button class="btn rezgo-btn-default" type="submit">Apply</button></span>
+							</div>
+						</form>
+					<? } else { ?>
+						<label for="rezgo-promo-code"><i class="fa fa-tags"></i>&nbsp;<span class="rezgo-promo-label"><span>Promo code</span></span></label>&nbsp;
+						<span id="rezgo-promo-value"><?=$_SESSION['rezgo_promo']?></span>&nbsp;
+						<a id="rezgo-promo-clear" class="btn rezgo-btn-default btn-sm" href="<?=$_SERVER['HTTP_REFERER']?>/?promo=" target="_top">clear</a>
+					<? } ?>
+					</div>
+				</div>
+			<? } // end promo form ?>
+		</div>
+
 		<div class="col-md-8 col-sm-7 col-xs-12 rezgo-left-wrp pull-left" id="rezgo-details">
-		  
-      <? if($site->exists($item->details->highlights)) { ?> 
-        <div class="rezgo-tour-highlights"><?=$item->details->highlights?></div>
-      <? } ?>
-      
-		  <div class="rezgo-tour-description">
-		  
-		  	<? if($site->exists($item->details->overview)) { ?> 
-		    	<div class="lead" id="rezgo-tour-overview"><?=$item->details->overview?></div>
-		    <? } ?>  
-		      
-	      <?
+			
+			<? if($site->exists($item->details->highlights)) { ?> 
+				<div class="rezgo-tour-highlights"><?=$item->details->highlights?></div>
+			<? } ?>
+			
+			<div class="rezgo-tour-description">
+			
+				<? if($site->exists($item->details->overview)) { ?> 
+					<div class="lead" id="rezgo-tour-overview"><?=$item->details->overview?></div>
+				<? } ?>	
+					
+				<?
 					unset($location);
 					
 					if($site->exists($item->location_name)) $location['name'] = $item->location_name;
@@ -380,45 +397,42 @@ $ta_key = '2E2B919141464E31B384DE1026A2DE7B';
 					if($site->exists($item->city)) $location['city'] = $item->city;
 					if($site->exists($item->state)) $location['state'] = $item->state;
 					if($site->exists($item->country)) $location['country'] = ucwords($site->countryName(strtolower($item->country)));
-			  ?>
-			  
-			  <? if (count($location) > 0) { ?>
-				  <div id="rezgo-tour-location">
-				    <label id="rezgo-tour-location-label"><span>Location:&nbsp;</span></label>
+				?>
+				
+				<? if (count($location) > 0) { ?>
+					<div id="rezgo-tour-location">
+						<label id="rezgo-tour-location-label"><span>Location:&nbsp;</span></label>
 						<?
-              if ($location['address'] != '') {
-                echo '
-                '.($location['name'] != '' ? '<span class="rezgo-location-name">'.$location['name'].' - </span>' : '').'
-                <span class="rezgo-location-address">'.$location['address'].'</span>';
-              } else {
-                echo '
-                '.($location['city'] != '' ? '<span class="rezgo-location-city">'.$location['city'].', </span>' : '').'
-                '.($location['state'] != '' ? '<span class="rezgo-location-state">'.$location['state'].', </span>' : '').'
-                '.($location['country'] != '' ? '<span class="rezgo-location-country">'.$location['country'].'</span>' : '');
-                //echo implode(', ', $location);
-              }
-            ?>
-				  </div>
-			  <? } ?>
-			          
+							if ($location['address'] != '') {
+								echo '
+								'.($location['name'] != '' ? '<span class="rezgo-location-name">'.$location['name'].' - </span>' : '').'
+								<span class="rezgo-location-address">'.$location['address'].'</span>';
+							} else {
+								echo '
+								'.($location['city'] != '' ? '<span class="rezgo-location-city">'.$location['city'].', </span>' : '').'
+								'.($location['state'] != '' ? '<span class="rezgo-location-state">'.$location['state'].', </span>' : '').'
+								'.($location['country'] != '' ? '<span class="rezgo-location-country">'.$location['country'].'</span>' : '');
+								//echo implode(', ', $location);
+							}
+						?>
+					</div>
+				<? } ?>
+								
 				<? if($site->isVendor()) { ?>
-          <div id="rezgo-provided-by">
-            <label id="rezgo-provided-by-label"><span>Provided by:&nbsp;</span></label>
-            <a href="<?=$site->base?>/supplier/<?=$item->cid?>"><?=$site->getCompanyName($item->cid)?></a>
-          </div>
-        <? } ?>
-            
+					<div id="rezgo-provided-by">
+						<label id="rezgo-provided-by-label"><span>Provided by:&nbsp;</span></label>
+						<a href="<?=$site->base?>/supplier/<?=$item->cid?>"><?=$site->getCompanyName($item->cid)?></a>
+					</div>
+				<? } ?>
+						
 			</div>
-		  
-		  <?
-				if(!$site->config('REZGO_MOBILE_XML')) {
-					// add 'in' class to expand collapsible for non-mobile devices
-					$mclass = ' in';
-				}	
-			?>
-	  
-	    <div class="panel-group rezgo-desc-panel" id="rezgo-tour-panels">      
-	  	
+			
+			<? if(!$site->config('REZGO_MOBILE_XML')) {
+				// add 'in' class to expand collapsible for non-mobile devices
+				$mclass = ' in';
+			} ?>
+
+			<div class="panel-group rezgo-desc-panel" id="rezgo-tour-panels">
 				<? if($site->exists($item->details->itinerary)) { ?> 
 					<div class="panel panel-default rezgo-panel" id="rezgo-panel-itinerary">
 						<div class="panel-heading rezgo-section">
@@ -431,13 +445,13 @@ $ta_key = '2E2B919141464E31B384DE1026A2DE7B';
 							</h4>
 						</div>
 						<div id="itinerary" class="panel-collapse collapse<?=$mclass?>">
-						<div class="panel-body rezgo-panel-body"><?=$item->details->itinerary?></div>
+							<div class="panel-body rezgo-panel-body"><?=$item->details->itinerary?></div>
 						</div>
 					</div>
 				<? } ?>
-				
+
 				<? if($site->exists($item->details->pick_up)) { ?> 
-		    	<div class="panel panel-default rezgo-panel" id="rezgo-panel-pickup">
+					<div class="panel panel-default rezgo-panel" id="rezgo-panel-pickup">
 						<div class="panel-heading rezgo-section">
 							<h4 class="panel-title">
 								<a data-toggle="collapse" class="rezgo-section" data-target="#pickup">
@@ -452,9 +466,9 @@ $ta_key = '2E2B919141464E31B384DE1026A2DE7B';
 						</div>
 					</div> 
 				<? } ?>
-				
+
 				<? if($site->exists($item->details->drop_off)) { ?> 
-		    	<div class="panel panel-default rezgo-panel" id="rezgo-panel-dropoff">
+					<div class="panel panel-default rezgo-panel" id="rezgo-panel-dropoff">
 						<div class="panel-heading rezgo-section">
 							<h4 class="panel-title">
 								<a data-toggle="collapse" class="rezgo-section" data-target="#dropoff">
@@ -469,9 +483,9 @@ $ta_key = '2E2B919141464E31B384DE1026A2DE7B';
 						</div>
 					</div> 
 				<? } ?>
-				
+
 				<? if($site->exists($item->details->bring)) { ?> 
-		    	<div class="panel panel-default rezgo-panel" id="rezgo-panel-thingstobring">
+					<div class="panel panel-default rezgo-panel" id="rezgo-panel-thingstobring">
 						<div class="panel-heading rezgo-section">
 							<h4 class="panel-title">
 								<a data-toggle="collapse" class="rezgo-section" data-target="#thingstobring">
@@ -486,9 +500,9 @@ $ta_key = '2E2B919141464E31B384DE1026A2DE7B';
 						</div>
 					</div> 
 				<? } ?>
-				
+
 				<? if($site->exists($item->details->inclusions)) { ?> 
-		    	<div class="panel panel-default rezgo-panel" id="rezgo-panel-inclusion">
+					<div class="panel panel-default rezgo-panel" id="rezgo-panel-inclusion">
 						<div class="panel-heading rezgo-section">
 							<h4 class="panel-title">
 								<a data-toggle="collapse" class="rezgo-section" data-target="#inclusion">
@@ -503,9 +517,9 @@ $ta_key = '2E2B919141464E31B384DE1026A2DE7B';
 						</div>
 					</div> 
 				<? } ?>
-				
+
 				<? if($site->exists($item->details->exclusions)) { ?> 
-		    	<div class="panel panel-default rezgo-panel" id="rezgo-panel-exclusion">
+					<div class="panel panel-default rezgo-panel" id="rezgo-panel-exclusion">
 						<div class="panel-heading rezgo-section">
 							<h4 class="panel-title">
 								<a data-toggle="collapse" class="rezgo-section" data-target="#exclusion">
@@ -520,9 +534,9 @@ $ta_key = '2E2B919141464E31B384DE1026A2DE7B';
 						</div>
 					</div> 
 				<? } ?>
-				
+
 				<? if($site->exists($item->details->description)) { ?> 
-		    	<div class="panel panel-default rezgo-panel" id="rezgo-panel-addinfo">
+					<div class="panel panel-default rezgo-panel" id="rezgo-panel-addinfo">
 						<div class="panel-heading rezgo-section">
 							<h4 class="panel-title">
 								<a data-toggle="collapse" class="rezgo-section" data-target="#addinfo">
@@ -537,9 +551,9 @@ $ta_key = '2E2B919141464E31B384DE1026A2DE7B';
 						</div>
 					</div> 
 				<? } ?>
-				  
+
 				<? if($site->exists($item->details->cancellation)) { ?> 
-		    	<div class="panel panel-default rezgo-panel" id="rezgo-panel-cancellation">
+					<div class="panel panel-default rezgo-panel" id="rezgo-panel-cancellation">
 						<div class="panel-heading rezgo-section">
 							<h4 class="panel-title">
 								<a data-toggle="collapse" class="rezgo-section" data-target="#cancellation">
@@ -554,53 +568,44 @@ $ta_key = '2E2B919141464E31B384DE1026A2DE7B';
 						</div>
 					</div> 
 				<? } ?>
-        
-        <?
-				
-				if (count($item->details->specifications->specification) >= 1) {
-					$s=1;
-					foreach ($item->details->specifications->specification as $spec) { 
-					
-					$spec_id = $site->seoEncode($spec->name);
-				?>
-            
-		    	<div class="panel panel-default rezgo-panel rezgo-spec-panel" id="rezgo-spec-<?=$spec_id?>">
-						<div class="panel-heading rezgo-section">
-							<h4 class="panel-title">
-								<a data-toggle="collapse" class="rezgo-section" data-target="#spec-<?=$s?>">
-									<div class="rezgo-section-icon"><i class="fa fa-circle-o fa-lg"></i></div>
-									<div class="rezgo-section-text"><span><?=$spec->name?></span></div>
-									<div class="clearfix"></div>
-								</a>
-							</h4>
+
+				<? if (count($item->details->specifications->specification) >= 1) { ?>
+					<? $s=1; ?>
+
+					<? foreach ($item->details->specifications->specification as $spec) { ?>
+						<? $spec_id = $site->seoEncode($spec->name); ?>
+
+						<div class="panel panel-default rezgo-panel rezgo-spec-panel" id="rezgo-spec-<?=$spec_id?>">
+							<div class="panel-heading rezgo-section">
+								<h4 class="panel-title">
+									<a data-toggle="collapse" class="rezgo-section" data-target="#spec-<?=$s?>">
+										<div class="rezgo-section-icon"><i class="fa fa-circle-o fa-lg"></i></div>
+										<div class="rezgo-section-text"><span><?=$spec->name?></span></div>
+										<div class="clearfix"></div>
+									</a>
+								</h4>
+							</div>
+							<div id="spec-<?=$s?>" class="panel-collapse collapse<?=$mclass?>">
+							<div class="panel-body rezgo-panel-body"><?=$spec->value?></div>
+							</div>
 						</div>
-						<div id="spec-<?=$s?>" class="panel-collapse collapse<?=$mclass?>">
-						<div class="panel-body rezgo-panel-body"><?=$spec->value?></div>
-						</div>
-					</div>             
-						
-				<?	
-						$s++;
-					} // end specifications
-				} // end if (count)
+
+						<? $s++; ?>
+					<? } ?>
+				<? } ?>
+
+				<?php
+					// $ta_key
+					// ta-ratings/s1.0-MCID-0.gif
+					// tripadvisor.png
+					// http://api.tripadvisor.com/api/partner/2.0/location/258705?key=$ta_key
 				?>
-        
-      
-        <?php
-          // $ta_key
-          // ta-ratings/s1.0-MCID-0.gif
-          // tripadvisor.png
-          // http://api.tripadvisor.com/api/partner/2.0/location/258705?key=$ta_key
-        ?>  
-	  	
+			
 				<? if($company->tripadvisor_url != '') { 
 				
 							$ta_id = (string) $company->tripadvisor_url;
-							
 							$ta_api_url = 'http://api.tripadvisor.com/api/partner/2.0/location/'.$ta_id.'?key='.$ta_key;
-							
 							$ta_contents = $site->getFile($ta_api_url);
-							
 							$ta_json = json_decode($ta_contents);
 							
 							//echo '<pre>'.print_r($ta_json, 1).'</pre>';
@@ -618,59 +623,56 @@ $ta_key = '2E2B919141464E31B384DE1026A2DE7B';
 						</div>
 						<div id="reviews" class="panel-collapse collapse<?=$mclass?>">
 						<div class="panel-body rezgo-panel-body review-panel-body">
-              <div id="TA_selfserveprop753" class="TA_selfserveprop"></div>
-              <script src="http://www.jscache.com/wejs?wtype=selfserveprop&amp;uniq=753&amp;locationId=<?=$ta_id?>&amp;lang=en_US&amp;rating=true&amp;nreviews=4&amp;writereviewlink=true&amp;popIdx=true&amp;iswide=true&amp;border=true&amp;display_version=2"></script>
-            </div>
+							<div id="TA_selfserveprop753" class="TA_selfserveprop"></div>
+							<script src="http://www.jscache.com/wejs?wtype=selfserveprop&amp;uniq=753&amp;locationId=<?=$ta_id?>&amp;lang=en_US&amp;rating=true&amp;nreviews=4&amp;writereviewlink=true&amp;popIdx=true&amp;iswide=true&amp;border=true&amp;display_version=2"></script>
+						</div>
 						</div>
 					</div>
-          
-          <style> 
-            #CDSWIDSSP, #CDSWIDERR { width:100% !important; } 
+					
+					<style> 
+						#CDSWIDSSP, #CDSWIDERR { width:100% !important; } 
 						.widSSPData { border:none !important; }
-            .widErrCnrs { display:none; }
-            .widErrData { margin:1px }
-            #CDSWIDERR.widErrBx .widErrData .widErrBranding dt { width: 100%; }
-          </style>
-          
+						.widErrCnrs { display:none; }
+						.widErrData { margin:1px }
+						#CDSWIDERR.widErrBx .widErrData .widErrBranding dt { width: 100%; }
+					</style>
+					
 				<? } ?>
-			
-	    </div><!-- //  #rezgo-tour-panels -->
-      
-          
+
+			</div><!-- //	#rezgo-tour-panels -->
+
 			<? if($site->getTourRelated()) { ?>
-        <div class="rezgo-related rezgo-related-details">
-        	
-          <div class="rezgo-related-label"><span>Related products</span></div>
-        
-        <? foreach($site->getTourRelated() as $related) { ?>
-          
-          <a href="<?=$site->base?>/details/<?=$related->com?>/<?=$site->seoEncode($related->name)?>" class="rezgo-related-link"><?=$related->name?></a><br>
-          
-        <? } ?>
-        
-        </div>
-      <? } ?>
-      
-	  
-    </div><!-- // .rezgo-left-wrp -->
-        
+				<div class="rezgo-related rezgo-related-details">
+					
+					<div class="rezgo-related-label"><span>Related products</span></div>
+				
+				<? foreach($site->getTourRelated() as $related) { ?>
+					
+					<a href="<?=$site->base?>/details/<?=$related->com?>/<?=$site->seoEncode($related->name)?>" class="rezgo-related-link"><?=$related->name?></a><br>
+					
+				<? } ?>
+				
+				</div>
+			<? } ?>
+		</div><!-- // .rezgo-left-wrp -->
+
 		<div class="col-md-4 col-sm-5 col-xs-12 rezgo-right-wrp pull-right">
 		
 			<? if($site->exists($item->lat)) { ?>
-      
-				<? if (!$site->exists($item->zoom)) { $map_zoom = 8; } else { $map_zoom = $item->zoom; } ?>        
-        
+			
+				<? if (!$site->exists($item->zoom)) { $map_zoom = 8; } else { $map_zoom = $item->zoom; } ?>				
+				
 				<script>
-          var tour_markers = [];
-          var tour_map;
-          
-          var tour_map_lat = <?=$item->lat?>;
-          var tour_map_lon = <?=$item->lon?>;
-          var tour_map_zoom = <?=$map_zoom?>;
-          
-          var tour_map_center=new google.maps.LatLng(tour_map_lat, tour_map_lon);
+					var tour_markers = [];
+					var tour_map;
 					
-          function tour_map_init() {
+					var tour_map_lat = <?=$item->lat?>;
+					var tour_map_lon = <?=$item->lon?>;
+					var tour_map_zoom = <?=$map_zoom?>;
+					
+					var tour_map_center=new google.maps.LatLng(tour_map_lat, tour_map_lon);
+					
+					function tour_map_init() {
 			
 						var tour_map_styles =[{
 							featureType: "poi",
@@ -680,97 +682,93 @@ $ta_key = '2E2B919141464E31B384DE1026A2DE7B';
 							}]
 						}];
 						
-            var tour_map_prop = {
-              center: tour_map_center,
-              zoom: tour_map_zoom,
-              scrollwheel: false,
+						var tour_map_prop = {
+							center: tour_map_center,
+							zoom: tour_map_zoom,
+							scrollwheel: false,
 							<? if ($site->config('REZGO_MOBILE_XML')) { ?>
 							draggable: false,
 							<? } ?>
-              mapTypeControl: false,
+							mapTypeControl: false,
 							streetViewControl: false,
 							zoomControl: true,
 							zoomControlOptions: {
 									position: google.maps.ControlPosition.LEFT_BOTTOM
 							},
 							styles: tour_map_styles, 
-              mapTypeId: google.maps.MapTypeId.<?=$item->map_type?>
-            };
-						            
-            tour_map = new google.maps.Map(document.getElementById("rezgo-tour-map"), tour_map_prop);
-            
-            google.maps.event.addListener(tour_map, 'zoom_changed', function() {
-              document.getElementById("zoom").value = tour_map.getZoom();
-            });
-            
+							mapTypeId: google.maps.MapTypeId.<?=$item->map_type?>
+						};
+												
+						tour_map = new google.maps.Map(document.getElementById("rezgo-tour-map"), tour_map_prop);
+						
+						google.maps.event.addListener(tour_map, 'zoom_changed', function() {
+							document.getElementById("zoom").value = tour_map.getZoom();
+						});
+						
 						var tour_map_marker = new google.maps.Marker({
 							position: new google.maps.LatLng(<?=$item->lat?>, <?=$item->lon?>),
 							map: tour_map
 						});
 						
 						tour_markers.push(tour_map_marker);
-						              
-          }
-           
-          google.maps.event.addDomListener(window, 'load', tour_map_init);
-					          
-        </script>    
-      
-      	<div style="position:relative;">	
-          <div class="rezgo-map" id="rezgo-tour-map"><!-- tour map here --></div>	
-            
-          <div class="rezgo-map-labels">
-            <? if($item->location_name != '') { ?>
-              <div class="rezgo-map-marker pull-left"><i class="fa fa-map-marker"></i></div> <?=$item->location_name?>
-              <div class="rezgo-map-hr"></div>
-            <? } ?>
-            
-            <? if($item->location_address != '') { ?>
-              <div class="rezgo-map-marker pull-left"><i class="fa fa-location-arrow"></i></div> <?=$item->location_address?>
-              <div class="rezgo-map-hr"></div>
-            <? } else { ?>
-              <div class="rezgo-map-marker pull-left"><i class="fa fa-location-arrow"></i></div> 
-              <?php
+													
+					}
+					 
+					google.maps.event.addDomListener(window, 'load', tour_map_init);
+										
+				</script>		
+			
+				<div style="position:relative;">	
+					<div class="rezgo-map" id="rezgo-tour-map"><!-- tour map here --></div>	
+						
+					<div class="rezgo-map-labels">
+						<? if($item->location_name != '') { ?>
+							<div class="rezgo-map-marker pull-left"><i class="fa fa-map-marker"></i></div> <?=$item->location_name?>
+							<div class="rezgo-map-hr"></div>
+						<? } ?>
+						
+						<? if($item->location_address != '') { ?>
+							<div class="rezgo-map-marker pull-left"><i class="fa fa-location-arrow"></i></div> <?=$item->location_address?>
+							<div class="rezgo-map-hr"></div>
+						<? } else { ?>
+							<div class="rezgo-map-marker pull-left"><i class="fa fa-location-arrow"></i></div> 
+							<?php
 								echo '
 								'.($item->city != '' ? $item->city.', ' : '').'
 								'.($item->state != '' ? $item->state.', ' : '').'
 								'.($item->country != '' ? ucwords($site->countryName(strtolower($item->country))) : '');
 							?>
-              <div class="rezgo-map-hr"></div>
-            <? } ?>
-            
-          </div>
-        
-        </div>
-        
+							<div class="rezgo-map-hr"></div>
+						<? } ?>
+						
+					</div>
+				
+				</div>
+				
 			<? } ?>
-		  
-		  <? // include ('sidebar_reviews.php'); ?>
-      
-			<? if(count($site->getTourTags()) > 0) { ?>  
-        <div id="rezgo-tour-tags">
-          <label id="rezgo-tour-tags-label"><span>Tags:&nbsp;</span></label>
-          <? 
-            foreach($site->getTourTags() as $tag) { 
-              if ($tag != '') {
-                $taglist .= '<a href="'.$site->base.'/tag/'.urlencode($tag).'">'.$tag.'</a>, ';
-              }
-            }
-            $taglist = trim($taglist, ', ');
-            echo $taglist;
-          ?>
-        </div>
-      <? } ?>
-		    
-		</div><!-- // .rezgo-right-wrp 
-    <div class="clearfix">&nbsp;</div>-->
-		
-  </div><!-- // main row -->
-	  
-	<script type="text/javascript">
-	
-    $(document).ready(function () {
 			
+			<? // include ('sidebar_reviews.php'); ?>
+			
+			<? if(count($site->getTourTags()) > 0) { ?>	
+				<div id="rezgo-tour-tags">
+					<label id="rezgo-tour-tags-label"><span>Tags:&nbsp;</span></label>
+					<? 
+						foreach($site->getTourTags() as $tag) { 
+							if ($tag != '') {
+								$taglist .= '<a href="'.$site->base.'/tag/'.urlencode($tag).'">'.$tag.'</a>, ';
+							}
+						}
+						$taglist = trim($taglist, ', ');
+						echo $taglist;
+					?>
+				</div>
+			<? } ?>
+				
+		</div><!-- // .rezgo-right-wrp -->
+	</div><!-- // main row -->
+
+	<script type="text/javascript">
+		$(document).ready(function () {
 			// function returns Y-m-d date format
 			(function() {
 					Date.prototype.toYMD = Date_toYMD;
@@ -791,14 +789,14 @@ $ta_key = '2E2B919141464E31B384DE1026A2DE7B';
 			
 			// new Date() object for tracking months
 			var rezDate = new Date('<?=$calendar_start?>-15');			
-      
-      function addLeadingZero(num) {
-        if (num < 10) {
-          return "0" + num;
-        } else {
-          return "" + num;
-        }
-      }
+			
+			function addLeadingZero(num) {
+				if (num < 10) {
+					return "0" + num;
+				} else {
+					return "" + num;
+				}
+			}
 			
 			// only animate month changes if not using Safari
 			var isSafari = Object.prototype.toString.call(window.HTMLElement).indexOf('Constructor') > 0;
@@ -809,23 +807,23 @@ $ta_key = '2E2B919141464E31B384DE1026A2DE7B';
 				monthAnimate = true;
 			}
 			
-      $('.responsive-calendar').responsiveCalendar({
-          time: '<?=$calendar_start?>', 
-          startFromSunday: <?=(($company->start_week == 'mon') ? 'false' : 'true') ?>,
+			$('.responsive-calendar').responsiveCalendar({
+					time: '<?=$calendar_start?>', 
+					startFromSunday: <?=(($company->start_week == 'mon') ? 'false' : 'true') ?>,
 					allRows: false,
 					monthChangeAnimation: monthAnimate,
 										
-          onDayClick: function(events) { 
-            
+					onDayClick: function(events) { 
+						
 						var this_date, this_class;
 						
-            this_date = $(this).data('year')+'-'+ addLeadingZero($(this).data('month')) +'-'+ addLeadingZero($(this).data('day'));
+						this_date = $(this).data('year')+'-'+ addLeadingZero($(this).data('month')) +'-'+ addLeadingZero($(this).data('day'));
 						
-            this_class = events[this_date].class;
+						this_class = events[this_date].class;
 						
 						/*var css_class = $(this).parent().attr('class');
 						$(this).parent().addClass('select');*/
-            
+						
 						if (this_class == 'passed') {
 							//$('.rezgo-date-selector').html('<p class="lead">This day has passed.</p>').show();
 						} else if (this_class == 'cutoff') {
@@ -842,11 +840,11 @@ $ta_key = '2E2B919141464E31B384DE1026A2DE7B';
 							if($('.rezgo-date-selector').css('display') == 'none') {
 								$('.rezgo-date-selector').slideDown('fast');
 							}
-            
+						
 							$('.rezgo-date-selector').css('opacity', '0.4');
 							
 							$.ajax({
-								url: '<?=$site->base?>/calendar_day.php?com=<?=$item->com?>&date=' + this_date,
+								url: '<?=$site->base?>/calendar_day.php?com=<?=$item->com?>&date=' + this_date + '&type=calendar',
 								context: document.body,
 								success: function(data) {
 									$('.rezgo-date-selector').html(data).css('opacity', '1');
@@ -866,32 +864,32 @@ $ta_key = '2E2B919141464E31B384DE1026A2DE7B';
 							});
 							
 						}
-          
-          },
+					
+					},
 										
-          onActiveDayClick: function(events) { 
+					onActiveDayClick: function(events) { 
 					
 						$('.days .day').each(function () {
 								$(this).removeClass('select');
 						});
-            
+						
 						$(this).parent().addClass('select');
-          
-          },
+					
+					},
 										
-          /*onDayHover: function(events) { 
+					/*onDayHover: function(events) { 
 					
 						var this_date, this_class;
 						
-            this_date = $(this).data('year')+'-'+ addLeadingZero($(this).data('month')) +'-'+ addLeadingZero($(this).data('day'));
+						this_date = $(this).data('year')+'-'+ addLeadingZero($(this).data('month')) +'-'+ addLeadingZero($(this).data('day'));
 						
-            this_class = events[this_date].class;
+						this_class = events[this_date].class;
 						
-            if (this_class == '') {
+						if (this_class == '') {
 							$(this).parent().tooltip({'placement' : 'top', 'title': 'click to choose \n an option'});
-						}          
+						}					
 						
-          },*/
+					},*/
 					
 					onMonthChange: function(events) { 
 					
@@ -908,17 +906,17 @@ $ta_key = '2E2B919141464E31B384DE1026A2DE7B';
 								$('#rezgo-date-script').html(data); 
 							}
 						});
-          
-          },
 					
-          events: {
+					},
+					
+					events: {
 						<?=$calendar_events?>				
 					}
 					
-          
-      });		
+					
+			});		
 			
-		  <? if ( ($non_single_dates > 0 || $single_dates > 10) && $cal_day_set === TRUE ) { ?>
+			<? if ( ( $calendar_dates > 0 || $single_dates > 10 ) && $cal_day_set === TRUE ) { ?>
 			// open the first available day			
 			$('.rezgo-date-options').html('<div class="rezgo-date-loading"></div>');
 			
@@ -927,7 +925,7 @@ $ta_key = '2E2B919141464E31B384DE1026A2DE7B';
 			}
 			
 			$.ajax({
-				url: '<?=$site->base?>/calendar_day.php?com=<?=$item->com?>&date=<?=$open_cal_day?>&id=<?=$_REQUEST['option']?>',
+				url: '<?=$site->base?>/calendar_day.php?com=<?=$item->com?>&date=<?=$open_cal_day?>&id=<?=$_REQUEST['option']?>&type=calendar',
 				context: document.body,
 				success: function(data) {
 					$('.rezgo-date-selector').html(data).css('opacity', '1');
@@ -970,15 +968,8 @@ $ta_key = '2E2B919141464E31B384DE1026A2DE7B';
 							$("#rezgo-details").css({'min-height' : 0});
 					}
 			});
-      
-    });
-		
-  </script>
-
+			
+		});
+	</script>
 <? } ?>
 </div><!-- // .container -->
-<!--<pre>
-<?
-echo print_r($_COOKIE,1);
-?>
-</pre>-->

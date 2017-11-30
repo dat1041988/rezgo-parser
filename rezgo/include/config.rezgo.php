@@ -8,30 +8,30 @@
 
 	// Your company ID and your API KEY for the Rezgo API, they can both be found 
 	// on the main settings page on the Rezgo back-end.
-	define(	"REZGO_CID", "");
-	define(	"REZGO_API_KEY", "");
+	define("REZGO_CID", "16862");
+	define("REZGO_API_KEY", "4C5-S3C4-B7Y4-S3F");
 	
 	// RECAPTCHA API keys for the contact page (get recaptcha: http://www.google.com/recaptcha)
-	define(	"REZGO_CAPTCHA_PUB_KEY","");
-	define(	"REZGO_CAPTCHA_PRIV_KEY","");
+	define("REZGO_CAPTCHA_PUB_KEY","");
+	define("REZGO_CAPTCHA_PRIV_KEY","");
 	
 	// Path to the rezgo install on your server, the default is /rezgo in the root.
 	// this is used by the template includes as well as fetching files in the templates
-	define(	"REZGO_DIR",								"/rezgo"																			);
+	define("REZGO_DIR","/rezgo");
 	
 	// The web root you want to precede links, the default is "" (empty) for root
 	// to change to your own custom directory, add it like /my_directory or /my/directory
-	define( "REZGO_URL_BASE",						""																						);
+	define("REZGO_URL_BASE","");
 	
 	// The top level frame you want to use as a destination for your links
 	// works with top, blank, self, parent
-	define( "REZGO_FRAME_TARGET",				"top"																					);
+	define("REZGO_FRAME_TARGET","top");
 	
 	// Redirect page for fatal errors, set this to 0 to disable
-	define(	"REZGO_FATAL_ERROR_PAGE",		"/error.php"																	);
+	define("REZGO_FATAL_ERROR_PAGE","/error.php");
 	
 	// The number of results per search page, this is used exclusively by the templates
-	define(	"REZGO_RESULTS_PER_PAGE",		10																						);
+	define("REZGO_RESULTS_PER_PAGE",10);
 	
 	/* 
 		---------------------------------------------------------------------------
